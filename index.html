@@ -41,6 +41,9 @@
        
             this.load.tilemapTiledJSON("carte", "MapProto.json");  
 
+            this.load.spritesheet('AnimTestP','assets/SpriteSheetPersoTest.png',
+                { frameWidth: 32, frameHeight: 32 });
+
         }
 
             
@@ -63,6 +66,12 @@
         var startFall = false;
         var compteurF = 30;
         var fallVerif=false;
+        var fdown = this.keys.f.isUp;
+        var isfallin=false;
+        var injump=false;
+        var isDownM = false;
+        var mouseX = 0;
+        var mouseY = 0;
 
         function create (){
             
@@ -107,7 +116,54 @@
             this.physics.world.setBounds(0, 0, 3200, 2560);
             this.cameras.main.setBounds(0, 0, 3200,2560);
             this.cameras.main.zoom = 2;                  //Camera
-            this.cameras.main.startFollow(player);     
+            this.cameras.main.startFollow(player); 
+            
+            this.anims.create({
+                    key: 'WalkR',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:0,end:2}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                });  
+
+            this.anims.create({
+                    key: 'WalkL',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:3,end:5}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+                
+            this.anims.create({
+                    key: 'Immobile',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:6,end:8}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'Jump',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:9,end:12}),          //creation des animation
+                    frameRate: 10,
+                }); 
+
+            this.anims.create({
+                    key: 'fall',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:13,end:14}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.input.on('pointerdown', function(pointer) {
+                isDownM = true
+                mouseX = pointer.x 
+                mouseY = pointer.y 
+            });
+            this.input.on('pointermove', function(pointer) {
+                mouseX = pointer.x 
+                mouseY = pointer.y 
+            });
+            this.input.on('pointerup', function(pointer) {
+                isDownM = false
+            });
 
             // touches clavier
             cursors = this.input.keyboard.createCursorKeys();
@@ -122,9 +178,10 @@
                 espace:  Phaser.Input.Keyboard.KeyCodes.SPACE
             });
         }
-        
         function update(){
-            console.log(fallVerif) 
+            console.log(mouseX)
+            console.log(mouseY)
+            fdown = this.keys.f.isUp;
             
             if (player.body.blocked.down || player.body.blocked.left || player.body.blocked.right){
                 FpressVerif=false;
@@ -132,12 +189,14 @@
                 valdash=0;
                 dashvalmax=false;
                 colorAppliqué=false;
+                fdown = this.keys.f.isUp;
             }
 
             if (player.body.blocked.down){
                 dash2 = true;
                 indash = false;
                 fallVerif=false;
+                injump=false;z
             }
 
             if(dash2==true){
@@ -166,6 +225,12 @@
                 startFall = true;
             }
 
+            if (isDownM==true){
+                console.log("yo")
+                player.setVelocityY(mouseY);
+                player.setVelocityX(mouseX);
+            }
+
             if(startFall == true){
                 compteurF--
                 if (compteurF==0){
@@ -177,9 +242,10 @@
 
             if(indash==true){
                 fallVerif=false;
+                fdown = this.keys.f.isUp ||this.keys.f.isDown;
             }
             
-            if(this.keys.f.isUp && FpressVerif == true && fallVerif==false){
+            if(fdown && FpressVerif == true && fallVerif==false){
                 compteur--
                 indash = true;
                 dash2 = false;
@@ -197,12 +263,23 @@
                     valdash=0;
                     dashvalmax=false;
                     colorAppliqué=false;
+                    fdown = this.keys.f.isUp;
                 }
             } 
+            
+            if(player.body.velocity.y>0){
+                isfallin = true
+                player.anims.play("fall",true)
+            }else{
+                isfallin = false
+            }
 
             if (Phaser.Input.Keyboard.JustDown(this.keys.espace)){
                 if (player.body.blocked.down ) {
-                    player.setVelocityY(-600);}
+                    player.setVelocityY(-600);
+                    player.anims.play("Jump",true)
+                    injump=true
+                }
             }  
 
             if (cursors.left.isDown || this.keys.q.isDown){ 
@@ -211,6 +288,8 @@
                 }
                 if (indash==false){
                     player.direction="gauche"
+                    if(isfallin == false && injump==false){
+                    player.anims.play("WalkL", true)}
                 }
             }
 
@@ -220,12 +299,18 @@
                 }
                 if (indash==false){
                     player.direction="droite"
+                    if(isfallin == false && injump==false){
+                    player.anims.play("WalkR", true)}
                 }
             }
 
-            if (cursors.left.isUp && this.keys.q.isUp && cursors.right.isUp && this.keys.d.isUp && FpressVerif==false){
+            if (cursors.left.isUp && this.keys.q.isUp && cursors.right.isUp && this.keys.d.isUp && FpressVerif==false && isDownM==false){
                 player.setVelocityX(0); 
-            }       
+                if(isfallin == false && injump==false){
+                    player.anims.play("Immobile", true)
+                }
+            } 
+
         }
        
         
