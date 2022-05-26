@@ -1,7 +1,7 @@
 <!doctype html>
 <html lang="en">
 <head>
-<meta charset="UTF-8" /><title>Mon 1er jeu Phaser</title>
+<meta charset="UTF-8" /><title>Mon dernier jeu phaser</title>
     <script src="//cdn.jsdelivr.net/npm/phaser@3.51.0/dist/phaser.js">
     </script>
 
@@ -18,12 +18,19 @@
 
         var config = {
             type: Phaser.AUTO,
-            width: 1280, height: 720,
+            scale: {
+            mode: Phaser.Scale.FIT,
+            parent: 'phaser-example',
+            autoCenter: Phaser.Scale.CENTER_BOTH,
+            width: 1280,
+            height: 720,
+            pixelArt: true,
+            },
             physics: {
             default: 'arcade',
             arcade: {
             gravity: { y: 1500},
-            debug: false
+            debug: false,
             }},
             pixelArt: true,
             scene: {preload: preload, create: create, update: update }
@@ -38,42 +45,85 @@
             this.load.image("Phaser_tuilesdejeu", "assets/tilesetproto.png");
             this.load.image("persoP","assets/persoproto.png");
             this.load.image("blocVide", "assets/blocV.png");
+            this.load.image("PhotoImage", "assets/photo.png");
+            this.load.image("InvBlock3264", "assets/3264hitbox.png");
+            this.load.image("particules", "assets/particletest.png");
+            this.load.image("particules2", "assets/particletest2.png");
+            this.load.image("SpikeImage", "assets/spike.png");
+            this.load.image("SpikeImage2", "assets/spike2.png");
        
             this.load.tilemapTiledJSON("carte", "MapProto.json");  
 
             this.load.spritesheet('AnimTestP','assets/SpriteSheetPersoTest.png',
                 { frameWidth: 32, frameHeight: 32 });
 
+            this.load.spritesheet('TransformAnim','assets/TransformationAnim.png',
+                { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('AnimTouche','assets/letreA.png',
+                { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('AnimPerso2','assets/spritesheetP2.png',
+                { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('DeathPerso','assets/DeathSpriteSheet.png',
+                { frameWidth: 32, frameHeight: 32 });
+
         }
 
-            
-        // Initialisation des var    
-        var player;
-        var cursors;
-        var startgGame=true;
-        var valdash = 0;
-        var indash = false;
-        var validDash = false;
-        var compteur = 30;
-        var compteur2 = 0;
-        var verifValid = 0;
-        var FpressVerif = false;
-        var dashstart= false;
-        var dash2 = true;
-        var dashvalmax=false;
-        var compteurMax = 20;
-        var colorAppliqué=false;
-        var startFall = false;
-        var compteurF = 30;
-        var fallVerif=false;
-        var fdown = this.keys.f.isUp;
-        var isfallin=false;
-        var injump=false;
-        var isDownM = false;
-        var mouseX = 0;
-        var mouseY = 0;
-
         function create (){
+            startgGame=true;
+            valdash = 0;
+            indash = false;
+            validDash = false;
+            compteur = 30;
+            compteur2 = 0;
+            verifValid = 0;
+            FpressVerif = false;
+            dashstart= false;
+            dash2 = true;
+            dashvalmax=false;
+            compteurMax = 20;
+            colorAppliqué=false;
+            startFall = false;
+            compteurF = 30;
+            fallVerif=false;
+            isfallin=false;
+            injump=false;
+            isDownM = false;
+            mouseX = 0;
+            mouseY = 0;
+            tempsdashS = true;
+            inwalljumpG = false;
+            inwalljumpD = false;
+            compteurWallJump = 18;
+            compteurwallstart=false;
+            startjump=false;
+            createR=false  ;
+            injump2=false;
+            ParticuleSpeed=10;
+            compteurJumpReset=20;
+            InWallGlideD=false;
+            InWallGlideR=false;
+            createE=false;
+            Transform2=false;
+            animwalkr="WalkR";
+            animwalkl="WalkL";
+            animidle="Immobile";
+            animjump="Jump";
+            animfall="fall";
+            animjumpR="Jump2L";
+            animjumpL="Jump2R";
+            animfallR="Fall2L";
+            animfallL="Fall2R";
+            InTransfo=false;
+            Indeath=false;
+            indeath2=false,
+            DeathSpark=false,
+            NoWallJumpVerif=false;
+            checkpointsY=0;
+            checkpointsX=0;
+
             
             const carteDuNiveau = this.add.tilemap("carte");
 
@@ -92,42 +142,202 @@
                     tileset
                     ); 
 
-            const plateformes = carteDuNiveau.createLayer(
-                    "plateformeP",
+            const FondNiveau2 = carteDuNiveau.createLayer(
+                    "Background2",
                     tileset
                     ); 
 
-            player = this.physics.add.sprite(1830,2504, 'persoP');            //init joueur
-            player.body.setSize(24,18,true)        
+            const FondNiveau1 = carteDuNiveau.createLayer(
+                    "Background1",
+                    tileset
+                    ); 
+                    
+            const decorsFond2 = carteDuNiveau.createLayer(
+                    "DecorsFond2",
+                    tileset
+                    ); 
+
+            const decorsFond = carteDuNiveau.createLayer(
+                    "DecorsFond",
+                    tileset
+                    ); 
+
+            const plateformes = carteDuNiveau.createLayer(
+                    "plateformeP2",
+                    tileset
+                    ); 
+            const Decorsp = carteDuNiveau.createLayer(
+                    "DecorsP",
+                    tileset
+                    ); 
+
+            FondNiveau2.setScrollFactor(0.8)
+            FondNiveau1.setScrollFactor(0.9)
+        carteDuNiveau.getObjectLayer('spawnJoueur').objects.forEach((spawnJoueur) => {
+            this.spawnXSortieScene = spawnJoueur.x, 
+            this.spawnYSortieScene =  spawnJoueur.y
+        });
+        
+            spark0 = this.add.particles('particules').createEmitter({
+                    x: 0,
+                    y: 0,
+                    lifespan: 1000,
+                    speed: 10,
+                    quantity:150,
+                    scale: { start: 0.7, end: 0 },
+                });
+
+            spark2 = this.add.particles('particules').createEmitter({
+                    x: 0,
+                    y: 0,
+                    lifespan: 1000,
+                    speed: 150,
+                    scale: { start: 0.7, end: 0 },
+                });
+
+            spark1 = this.add.particles('particules').createEmitter({
+                    x: 0,
+                    y: -1000,
+                    lifespan: 1000,
+                    speed: 30,
+                    //gravityX:50,
+                    scale: { start: 0.7, end: 0 },
+                    //tint: 0xFFFF00
+                });
+
+            spark3 = this.add.particles('particules2').createEmitter({
+                    lifespan: 150,
+                    quantity:50,
+                    speed: 500,
+                    //gravityX:50,
+                    scale: { start: 0.7, end: 1.5 },
+                    //tint: 0xFFFF00
+                });
+
+            spark4 = this.add.particles('particules2').createEmitter({
+                    lifespan: 150,
+                    quantity:50,
+                    speed: 500,
+                    delay:50,
+                    //gravityX:50,
+                    scale: { start: 0.7, end: 1.5 },
+                    //tint: 0xFFFF00
+                });
+
+            ImageG = this.physics.add.group({
+                allowGravity:true,
+            });
+
+            SpikeG = this.physics.add.group({
+                allowGravity:false,
+                immovable:true,
+            });
+
+            SpikeG2 = this.physics.add.group({
+                allowGravity:false,
+                immovable:true,
+            });
+
+            carteDuNiveau.getObjectLayer('Photo').objects.forEach((bloc) => {
+                    imageB = ImageG.create(bloc.x, bloc.y , "PhotoImage").setOrigin(0);               //importation via calque objet feu de camp
+            });
+
+            player = this.physics.add.sprite(this.spawnXSortieScene,this.spawnYSortieScene, 'persoP');            //init joueur
+            player.body.setSize(24,19,true)        
             player.setOffset(5, 13)
             player.alpha = 1; 
+            player.setMaxVelocity(10000,900)
+            
+            const Decorspj = carteDuNiveau.createLayer(
+                    "DecorsPJ",
+                    tileset
+                    ); 
 
+            CheckPointsG=this.physics.add.group({
+                    allowGravity: false,
+                    immovable:true,
+                });
+
+            carteDuNiveau.getObjectLayer('CheckPoints').objects.forEach((bloc) => {
+                    CheckPointsB = CheckPointsG.create(bloc.x, bloc.y, "blocVide").setOrigin(0);               //importation via calque objet feu de camp
+                    CheckPointsB.setSize(bloc.width,bloc.height,true )
+                    CheckPointsB.setOffset(0,0.8)
+            });
+            
             blocG = this.physics.add.staticGroup();
+            this.physics.add.collider(ImageG,plateformes)
 
-            plateformes.setCollisionByProperty({ estSolide: true });   
+            RefletG=this.physics.add.group({
+                    allowGravity: false,
+                });
+
+
+            plateformes.setCollisionByProperty({ estSolide: true }); 
             this.physics.add.collider(player, plateformes);
             player.setCollideWorldBounds(true);
-            this.physics.add.collider(player,blocG)
-            
+            this.physics.add.collider(player,blocG);
+            this.physics.add.overlap(player,SpikeG,Mort,null,this);
+            this.physics.add.overlap(player,SpikeG2,Mort,null,this);
+            this.physics.add.overlap(player,CheckPointsG,ChekPointsF,null,this);
             carteDuNiveau.getObjectLayer('Physic').objects.forEach((bloc) => {
                     const blocsprite = blocG.create(bloc.x+=16 , bloc.y -= 16, "blocVide").setOrigin(0);               //importation via calque objet feu de camp
             });
 
-            this.physics.world.setBounds(0, 0, 3200, 2560);
-            this.cameras.main.setBounds(0, 0, 3200,2560);
+            this.physics.world.setBounds(0, 0, 9376, 2560);
+            this.cameras.main.setBounds(0, 0, 9376,2560);
             this.cameras.main.zoom = 2;                  //Camera
             this.cameras.main.startFollow(player); 
+
+            carteDuNiveau.getObjectLayer('Pique').objects.forEach((bloc) => {
+                    SpikeB = SpikeG.create(bloc.x , bloc.y-32 , "SpikeImage").setOrigin(0);               //importation via calque objet feu de camp
+            });
+
+            SpikeG.children.iterate((SpikeB) => {
+                SpikeB.body.setSize(22,32,true)
+                SpikeB.setOffset(0,0)
+            });
+
+            carteDuNiveau.getObjectLayer('Pique2').objects.forEach((bloc) => {
+                    SpikeB2 = SpikeG2.create(bloc.x , bloc.y-32 , "SpikeImage2").setOrigin(0);               //importation via calque objet feu de camp
+            });
+
+            SpikeG2.children.iterate((SpikeB2) => {
+                SpikeB2.body.setSize(22,32,true)
+                SpikeB2.setOffset(11,0)
+            });
+
             
             this.anims.create({
-                    key: 'WalkR',           
+                    key: 'WalkL',           
                     frames: this.anims.generateFrameNumbers('AnimTestP', {start:0,end:2}),          //creation des animation
                     frameRate: 5,
                     repeat: -1,
                 });  
 
             this.anims.create({
-                    key: 'WalkL',           
+                    key: 'AnimationTransform',           
+                    frames: this.anims.generateFrameNumbers('TransformAnim', {start:0,end:11}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                });  
+
+            this.anims.create({
+                    key: 'LettreA',           
+                    frames: this.anims.generateFrameNumbers('AnimTouche', {start:0,end:1}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WalkR',           
                     frames: this.anims.generateFrameNumbers('AnimTestP', {start:3,end:5}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WalkF',           
+                    frames: this.anims.generateFrameNumbers('WalkAnim', {start:0,end:2}),          //creation des animation
                     frameRate: 5,
                     repeat: -1,
                 }); 
@@ -150,16 +360,121 @@
                     frames: this.anims.generateFrameNumbers('AnimTestP', {start:13,end:14}),          //creation des animation
                     frameRate: 5,
                     repeat: -1,
+                });
+
+            this.anims.create({
+                    key: 'fcharge',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:15,end:18}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
                 }); 
+
+            this.anims.create({
+                    key: 'dashG',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:19,end:20}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'dashD',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:21,end:22}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                });
+
+            this.anims.create({
+                    key: 'WallGlideL',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:23,end:24}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WallGlideR',           
+                    frames: this.anims.generateFrameNumbers('AnimTestP', {start:25,end:26}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'Immobile2',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:0,end:3}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WalkL2',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:4,end:7}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WalkR2',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:8,end:11}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+                
+            this.anims.create({
+                    key: 'Jump2R',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:12,end:16}),          //creation des animation
+                    frameRate: 10,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'Jump2L',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:19,end:23}),          //creation des animation
+                    frameRate: 10,
+                    repeat: -1,
+                });
+
+            this.anims.create({
+                    key: 'Fall2R',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:17,end:18}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                });
+
+            this.anims.create({
+                    key: 'Fall2L',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:24,end:25}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+                
+            this.anims.create({
+                    key: 'WallSlideL',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:26,end:27}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'WallSlideR',           
+                    frames: this.anims.generateFrameNumbers('AnimPerso2', {start:28,end:29}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                }); 
+
+            this.anims.create({
+                    key: 'DeathAnim',           
+                    frames: this.anims.generateFrameNumbers('DeathPerso', {start:0,end:5}),          //creation des animation
+                    frameRate: 15,
+                }); 
+
 
             this.input.on('pointerdown', function(pointer) {
                 isDownM = true
-                mouseX = pointer.x 
-                mouseY = pointer.y 
+                mouseX = pointer.x + this.cameras.main.worldView.x
+                mouseY = pointer.y + this.cameras.main.worldView.y 
             });
             this.input.on('pointermove', function(pointer) {
-                mouseX = pointer.x 
-                mouseY = pointer.y 
+                mouseX = pointer.x + this.cameras.main.worldView.x
+                mouseY = pointer.y + this.cameras.main.worldView.y 
             });
             this.input.on('pointerup', function(pointer) {
                 isDownM = false
@@ -177,12 +492,144 @@
                 f:  Phaser.Input.Keyboard.KeyCodes.F,
                 espace:  Phaser.Input.Keyboard.KeyCodes.SPACE
             });
-        }
-        function update(){
-            console.log(mouseX)
-            console.log(mouseY)
             fdown = this.keys.f.isUp;
+        }
+        function ChekPointsF(){
+            checkpointsX=player.x
+            checkpointsY=player.y
+        }
+        
+        function Mort(){
+            player.anims.play("DeathAnim",true)
+            InTransfo=true;
+            player.setVelocityX(0)
+            player.setVelocityY(-25);
+            if(player.anims.currentFrame.index==6){
+                Indeath=true;
+                player.setVisible(false);
+                if(indeath2==false){
+                    indeath2=true
+                setTimeout(() => {
+                    console.log("yo")
+                    InTransfo=false;   //if last frame
+                    player.setVisible(true);
+                    player.x=checkpointsX;   
+                    player.y=checkpointsY; 
+                    indeath2=false; 
+                    Indeath=false;
+                    DeathSpark=false;
+                    }, 500);
+                }
+                
+            }
+        }
+
+        function update(){
+            console.log(NoWallJumpVerif)
+            console.log(player.x,player.y)
+            if(Transform2==true){
+                animwalkr="WalkR2";
+                animwalkl="WalkL2";
+                animidle="Immobile2";
+                animjumpR="Jump2L";
+                animjumpL="Jump2R";
+                animfallR="Fall2L";
+                animfallL="Fall2R";
+            }
+            fdown = this.keys.f.isUp;
+            if(this.keys.f.isDown){
+                spark1.setPosition(player.x, player.y);
+            }else{
+                spark1.setPosition(0, 0);
+            }
+
+            if(indash==true){
+                spark2.setPosition(player.x, player.y);
+            }else{
+                spark2.setPosition(0, 0);
+            }
+
+            if(Indeath==true && DeathSpark==false){
+                DeathSpark=true
+                spark3.setPosition(player.x, player.y);
+                this.cameras.main.shake(90, 0.001);
+                spark4.setPosition(player.x, player.y);
+            }else{
+                spark3.setPosition(0, 0);
+                spark4.setPosition(0, 0);
+            }
+
+            if(((player.x >= imageB.x-50 && player.x <= imageB.x+50) && (player.y >=imageB.y-50 && player.y <= imageB.y+50) && createE==false)){
+                lettreSprite = this.add.sprite(player.x,player.y, 'LettreA');  
+                lettreSprite.anims.play("LettreA",true)
+                createE=true
+            }
+
+            if(((player.x <= imageB.x-50 || player.x >= imageB.x+50) && createE==true)){
+                lettreSprite.destroy()
+                createE=false       
+            }
+
+            if(createE==true){
+                lettreSprite.x=player.x
+                lettreSprite.y=player.y-32;
+                if(this.keys.e.isDown && Transform2==false && player.body.blocked.down){
+                    player.anims.play("AnimationTransform",true)
+                    InTransfo=true;
+                    player.setVelocityX(0)
+                    setTimeout(() => {
+                        Transform2=true; 
+                        InTransfo=false;
+                        player.body.setSize(20,0,true)        
+                    }, 2370);
+
+                }
+            }
+
             
+            if(((player.x >= 2523 && player.x <= 3600) && (player.y == 2512))&& createR==false){       //pop info item quand joueur a coté
+                playerReflet = RefletG.create(player.x,player.y-20, 'persoP');
+                playerReflet.flipY=true;
+
+                if(player.direction=="gauche"){
+                    playerReflet.anims.play(animwalkl, true)
+                }else{
+                    playerReflet.anims.play(animidle, true)
+                }
+                if(player.direction=="droite"){
+                    playerReflet.anims.play(animwalkr, true)
+                }else{
+                    playerReflet.anims.play(animidle, true)
+                }
+                createR=true
+            }
+
+            if(((player.x >= 2523 && player.x <= 3600) && (player.y <=2510)&& createR==true)){
+                playerReflet.destroy()
+                createR=false       
+            }
+
+
+            if(createR==true){
+                playerReflet.x=player.x
+                playerReflet.y=player.y+32;
+                playerReflet.alpha = 0.5;
+                if(player.direction=="gauche"){
+                    playerReflet.anims.play(animwalkl, true)
+                }
+                else if(player.direction=="droite"){
+                    playerReflet.anims.play(animwalkr, true)
+                }else{
+                    playerReflet.anims.play(animidle, true)
+                }
+            }
+
+            if(player.x<=2523 && createR==true){
+                playerReflet.destroy()
+                createR=false
+            }
+
+
             if (player.body.blocked.down || player.body.blocked.left || player.body.blocked.right){
                 FpressVerif=false;
                 compteur=30;
@@ -190,17 +637,40 @@
                 dashvalmax=false;
                 colorAppliqué=false;
                 fdown = this.keys.f.isUp;
+                compteurJumpReset=20
+                injump2=false
             }
 
             if (player.body.blocked.down){
                 dash2 = true;
                 indash = false;
                 fallVerif=false;
-                injump=false;z
+                injump=false;
+                tempsdashS=true
+                injump2=false
             }
+
+            ///glisse
+            if(player.body.blocked.left && injump==false && Transform2==true){
+                player.anims.play("WallSlideR",true)
+                InWallGlideD=true
+                player.setVelocityY(10)
+            }else{
+                InWallGlideD=false;
+            }
+
+            if(player.body.blocked.right && injump==false && Transform2==true ){
+                player.anims.play("WallSlideL",true)
+                InWallGlideR=true
+                player.setVelocityY(10)
+            }else{
+                InWallGlideR=false
+            }
+            /////////////////
 
             if(dash2==true){
             if (this.keys.f.isDown && fallVerif==false){
+                    player.anims.play("fcharge",true)
                     player.setVelocityX(0)
                     player.setVelocityY(-25);
                     FpressVerif = true;
@@ -218,6 +688,7 @@
                     compteurMax --
             }
 
+
             if (compteurMax==0){
                 compteurMax=20
                 player.setTint(0xffffff);
@@ -225,11 +696,14 @@
                 startFall = true;
             }
 
-            if (isDownM==true){
-                console.log("yo")
-                player.setVelocityY(mouseY);
-                player.setVelocityX(mouseX);
-            }
+            /*if (isDownM==true && tempsdashS==true){
+                this.physics.moveTo(player,mouseX,mouseY,600)
+                tempsdashS=false;
+            }*/
+
+            /*if(player.body.velocity.y>200 && player.body.blocked.down){
+                player.setVelocityY(- 600)
+            }*/
 
             if(startFall == true){
                 compteurF--
@@ -240,20 +714,118 @@
                 }
             }
 
+            if(player.direction=="immobile"){
+                ParticuleSpeed=1000
+            }else{
+                ParticuleSpeed=10
+            }
+
+            if(injump==true && player.body.blocked.left && Transform2==true){
+                injump2=false
+                inwalljumpG=true
+                player.setVelocityX(50)
+                compteurwallstart=true
+            }   
+
+            if(injump==true && player.body.blocked.right && Transform2==true){
+                inwalljumpD=true
+                player.setVelocityX(-50)
+                compteurwallstart=true
+            }   
+
+            if(compteurwallstart == true){
+                compteurWallJump--
+            }
+
+            if(compteurWallJump==0){
+                inwalljumpG=false
+                inwalljumpD=false
+                compteurwallstart=false
+                compteurWallJump=18
+            }
+
             if(indash==true){
                 fallVerif=false;
                 fdown = this.keys.f.isUp ||this.keys.f.isDown;
             }
+
+            if (Phaser.Input.Keyboard.JustDown(this.keys.espace)){
+                if (player.body.blocked.down && InTransfo==false) {
+                    player.setVelocityY(-600);
+                    if(Transform2==true && player.direction=="gauche"){
+                        player.anims.play(animjumpL,true)
+                    }else if(Transform2==true && player.direction=="droite"){
+                        player.anims.play(animjumpR,true)                  
+                    }else if(Transform2==true && player.direction=="immobile"){
+                        player.anims.play(animjumpL,true)         
+                    }
+                    if(Transform2==false){
+                        player.anims.play("Jump",true)   
+                    }
+                    injump=true
+                    injump2=true
+                    startjump=true
+                }
+                if (player.body.blocked.right && Transform2==true) {
+                    if(Transform2==true && player.direction=="gauche"){
+                        player.anims.play(animjumpL,true)
+                    }else if(Transform2==true && player.direction=="droite"){
+                        player.anims.play(animjumpR,true)                  
+                    }else if(Transform2==true && player.direction=="immobile"){
+                        player.anims.play(animjumpL,true)         
+                    }
+                    if(Transform2==false){
+                        player.anims.play("Jump",true)   
+                    }
+                    player.setVelocityY(-600);
+                    injump=true
+                    injump2=true
+                    startjump=true
+                    player.setVelocityX(-150)
+                }
+                if (player.body.blocked.left && Transform2==true) {
+                    player.setVelocityY(-600);
+                    if(Transform2==true && player.direction=="gauche"){
+                        player.anims.play(animjumpL,true)
+                    }else if(Transform2==true && player.direction=="droite"){
+                        player.anims.play(animjumpR,true)                  
+                    }else if(Transform2==true && player.direction=="immobile"){
+                        player.anims.play(animjumpL,true)         
+                    }
+                    if(Transform2==false){
+                        player.anims.play("Jump",true)   
+                    }
+                    injump=true
+                    injump2=true
+                    player.setVelocityX(150)
+                    startjump=true
+                }
+            }  
+            
+            if(startjump==true){
+                compteurJumpReset--
+            }
+
+
+            if(compteurJumpReset==0){
+                startjump=false;
+                compteurJumpReset=20
+                injump=false
+            }
+
             
             if(fdown && FpressVerif == true && fallVerif==false){
+                this.cameras.main.shake(50, 0.001);
                 compteur--
                 indash = true;
                 dash2 = false;
                 if (player.direction=="gauche"){
+                    player.anims.play("dashG",true)
                     player.setVelocityX(-(valdash*10))
                     player.setVelocityY(-25);
                 }
                 if (player.direction=="droite"){
+                    player.anims.play("dashD",true)
                     player.setVelocityX(valdash*10);
                     player.setVelocityY(-25);
                 }
@@ -267,47 +839,56 @@
                 }
             } 
             
-            if(player.body.velocity.y>0){
+            if(player.body.velocity.y>0 ){
                 isfallin = true
-                player.anims.play("fall",true)
+                indash=false
+                if(InWallGlideR==false & InWallGlideD==false){
+                    if(Transform2==true && player.direction=="gauche"){
+                        player.anims.play(animfallL,true)
+                    }else if(Transform2==true && player.direction=="droite"){
+                        player.anims.play(animfallR,true)             
+                    }else if(Transform2==true && player.direction=="immobile"){
+                        player.anims.play(animfallL,true)         
+                    }
+                    if(Transform2==false){
+                        player.anims.play("fall",true)                           
+                    }
+                }
             }else{
                 isfallin = false
             }
 
-            if (Phaser.Input.Keyboard.JustDown(this.keys.espace)){
-                if (player.body.blocked.down ) {
-                    player.setVelocityY(-600);
-                    player.anims.play("Jump",true)
-                    injump=true
-                }
-            }  
+            if(player.body.velocity.y>0){
+                indash=false
+            }
 
-            if (cursors.left.isDown || this.keys.q.isDown){ 
-                if (FpressVerif==false){
+            if (this.keys.q.isDown && InTransfo==false){ 
+                if (FpressVerif==false && inwalljumpG==false){
                     player.setVelocityX(-200); 
                 }
                 if (indash==false){
                     player.direction="gauche"
-                    if(isfallin == false && injump==false){
-                    player.anims.play("WalkL", true)}
+                    if(isfallin == false && injump2==false && FpressVerif==false){
+                    player.anims.play(animwalkl, true)}
                 }
             }
 
-            else if (cursors.right.isDown || this.keys.d.isDown){ 
-                if (FpressVerif==false ){
+            else if (this.keys.d.isDown && InTransfo==false){ 
+                if (FpressVerif==false && inwalljumpD==false ){
                     player.setVelocityX(200); 
                 }
                 if (indash==false){
                     player.direction="droite"
-                    if(isfallin == false && injump==false){
-                    player.anims.play("WalkR", true)}
-                }
+                    if(isfallin == false && injump2==false && FpressVerif==false){
+                    player.anims.play(animwalkr, true)}
+                } 
             }
 
             if (cursors.left.isUp && this.keys.q.isUp && cursors.right.isUp && this.keys.d.isUp && FpressVerif==false && isDownM==false){
                 player.setVelocityX(0); 
-                if(isfallin == false && injump==false){
-                    player.anims.play("Immobile", true)
+                player.direction="immobile"
+                if(isfallin == false && injump2==false && injump==false && InTransfo==false){
+                    player.anims.play(animidle, true)
                 }
             } 
 
