@@ -1725,7 +1725,7 @@
 </data>
  </layer>
  <objectgroup id="8" name="spawnJoueur">
-  <object id="1292" x="7363.06" y="1817.28">
+  <object id="1292" x="7415.06" y="2310.28">
    <point/>
   </object>
  </objectgroup>
