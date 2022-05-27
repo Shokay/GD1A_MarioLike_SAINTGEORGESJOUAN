@@ -43,6 +43,7 @@
             //load de toute les images / sprites sheet 
 
             this.load.image("Phaser_tuilesdejeu", "assets/tilesetproto.png");
+            this.load.image("Phaser_tuilesdejeu2", "assets/FondGrotte2.png");
             this.load.image("persoP","assets/persoproto.png");
             this.load.image("blocVide", "assets/blocV.png");
             this.load.image("PhotoImage", "assets/photo.png");
@@ -51,11 +52,19 @@
             this.load.image("particules2", "assets/particletest2.png");
             this.load.image("SpikeImage", "assets/spike.png");
             this.load.image("SpikeImage2", "assets/spike2.png");
+            this.load.image("StalagmiteImage", "assets/Stalagmite.png");
+            this.load.image("EcranB", "assets/EcranB.png");
        
             this.load.tilemapTiledJSON("carte", "MapProto.json");  
 
             this.load.spritesheet('AnimTestP','assets/SpriteSheetPersoTest.png',
                 { frameWidth: 32, frameHeight: 32 });
+
+            this.load.spritesheet('AnimEcran','assets/EcranSpriteSheet.png',
+                { frameWidth: 1280, frameHeight: 720 });
+
+            this.load.spritesheet('AnimEcran2','assets/EcranSpriteSheet2.png',
+                { frameWidth: 1280, frameHeight: 720 });
 
             this.load.spritesheet('TransformAnim','assets/TransformationAnim.png',
                 { frameWidth: 32, frameHeight: 32 });
@@ -93,6 +102,7 @@
             isDownM = false;
             mouseX = 0;
             mouseY = 0;
+            Phase2Mort=false;    
             tempsdashS = true;
             inwalljumpG = false;
             inwalljumpD = false;
@@ -101,13 +111,16 @@
             startjump=false;
             createR=false  ;
             injump2=false;
+            inmort=false;
             ParticuleSpeed=10;
             compteurJumpReset=20;
             InWallGlideD=false;
             InWallGlideR=false;
             createE=false;
+            createE2=false; 
             Transform2=false;
             animwalkr="WalkR";
+            Noecran=false;
             animwalkl="WalkL";
             animidle="Immobile";
             animjump="Jump";
@@ -123,7 +136,8 @@
             NoWallJumpVerif=false;
             checkpointsY=0;
             checkpointsX=0;
-
+            this.lights.enable();
+            this.lights.setAmbientColor(0x555555);
             
             const carteDuNiveau = this.add.tilemap("carte");
 
@@ -131,7 +145,12 @@
             const tileset = carteDuNiveau.addTilesetImage(
                     "tilesetproto",
                     "Phaser_tuilesdejeu"
-                    );        
+                    );  
+                    
+            const tileset2 = carteDuNiveau.addTilesetImage(
+                    "FondGrotte2",
+                    "Phaser_tuilesdejeu2"
+                    );    
             
 
             // importer les calques 
@@ -151,6 +170,11 @@
                     "Background1",
                     tileset
                     ); 
+            const FondGrotte2 = carteDuNiveau.createLayer(
+                    "FondGrotte2",
+                    tileset2
+                    ); 
+ 
                     
             const decorsFond2 = carteDuNiveau.createLayer(
                     "DecorsFond2",
@@ -170,6 +194,16 @@
                     "DecorsP",
                     tileset
                     ); 
+
+            const FondGrotte1 = carteDuNiveau.createLayer(
+                    "FondGrotte",
+                    tileset2
+                    ).setPipeline('Light2D');
+
+            const plateformesG = carteDuNiveau.createLayer(
+                    "plateformeGrotte",
+                    tileset
+                    ).setPipeline('Light2D'); 
 
             FondNiveau2.setScrollFactor(0.8)
             FondNiveau1.setScrollFactor(0.9)
@@ -242,16 +276,30 @@
                     imageB = ImageG.create(bloc.x, bloc.y , "PhotoImage").setOrigin(0);               //importation via calque objet feu de camp
             });
 
-            player = this.physics.add.sprite(this.spawnXSortieScene,this.spawnYSortieScene, 'persoP');            //init joueur
+            player = this.physics.add.sprite(this.spawnXSortieScene,this.spawnYSortieScene, 'persoP').setPipeline('Light2D');            //init joueur
             player.body.setSize(24,19,true)        
             player.setOffset(5, 13)
             player.alpha = 1; 
             player.setMaxVelocity(10000,900)
+            light = this.lights.addLight(400, 300, 60).setIntensity(1);
+            light2 = this.lights.addLight(8851, 2224, 1000).setIntensity(2);
+
+
+            StalagmiteG = this.physics.add.group({
+                allowGravity:false,
+            });
+
+            carteDuNiveau.getObjectLayer('Stalagmite').objects.forEach((bloc) => {
+                StalagmiteB = StalagmiteG.create(bloc.x , bloc.y-32 , "StalagmiteImage").setOrigin(0).setPipeline('Light2D');               //importation via calque objet feu de camp
+                StalagmiteB.body.setSize(18,32,true )
+            });
             
             const Decorspj = carteDuNiveau.createLayer(
                     "DecorsPJ",
                     tileset
-                    ); 
+                    ).setPipeline('Light2D'); 
+
+            EcranBrouillé = this.add.sprite(player.x,player.y, 'EcranB'); 
 
             CheckPointsG=this.physics.add.group({
                     allowGravity: false,
@@ -273,10 +321,14 @@
 
 
             plateformes.setCollisionByProperty({ estSolide: true }); 
+            plateformesG.setCollisionByProperty({ estSolide: true }); 
             this.physics.add.collider(player, plateformes);
+            this.physics.add.collider(player, plateformesG);
             player.setCollideWorldBounds(true);
             this.physics.add.collider(player,blocG);
+            this.physics.add.collider(StalagmiteG,plateformesG, destroy,null,this);
             this.physics.add.overlap(player,SpikeG,Mort,null,this);
+            this.physics.add.overlap(player,StalagmiteG,Mort,null,this);
             this.physics.add.overlap(player,SpikeG2,Mort,null,this);
             this.physics.add.overlap(player,CheckPointsG,ChekPointsF,null,this);
             carteDuNiveau.getObjectLayer('Physic').objects.forEach((bloc) => {
@@ -466,6 +518,19 @@
                     frameRate: 15,
                 }); 
 
+            this.anims.create({
+                    key: 'AnimEcranF',           
+                    frames: this.anims.generateFrameNumbers('AnimEcran', {start:0,end:1}),          //creation des animation
+                    frameRate: 5,
+                    repeat: -1,
+                });
+
+            this.anims.create({
+                    key: 'AnimEcranF2',           
+                    frames: this.anims.generateFrameNumbers('AnimEcran2', {start:0,end:11}),          //creation des animation
+                    frameRate: 10,
+                    repeat: -1,
+                }); 
 
             this.input.on('pointerdown', function(pointer) {
                 isDownM = true
@@ -498,13 +563,40 @@
             checkpointsX=player.x
             checkpointsY=player.y
         }
-        
+        function destroy(StalagmiteA){
+            StalagmiteA.disableBody(true,true)
+        }
+
         function Mort(){
-            player.anims.play("DeathAnim",true)
-            InTransfo=true;
-            player.setVelocityX(0)
-            player.setVelocityY(-25);
-            if(player.anims.currentFrame.index==6){
+            console.log("inDeath")
+            inmort=true
+            if(Transform2==true){
+                InTransfo=true;
+                player.setVelocityX(0)
+                player.setVelocityY(-25);
+                player.anims.play("DeathAnim",true)
+                if(player.anims.currentFrame.index==6){
+                    Indeath=true;
+                    player.setVisible(false);
+                    if(indeath2==false){
+                        indeath2=true
+                    setTimeout(() => {
+                        console.log("yo")
+                        InTransfo=false;   //if last frame
+                        player.setVisible(true);
+                        player.x=checkpointsX;   
+                        player.y=checkpointsY; 
+                        indeath2=false; 
+                        Indeath=false;
+                        DeathSpark=false;
+                        inmort=false;
+                        }, 500);
+                    }
+                }
+            }else if(Transform2==false){
+                player.setVelocityX(0)
+                player.setVelocityY(0);
+                InTransfo=true
                 Indeath=true;
                 player.setVisible(false);
                 if(indeath2==false){
@@ -518,15 +610,27 @@
                     indeath2=false; 
                     Indeath=false;
                     DeathSpark=false;
+                    inmort=false;
                     }, 500);
                 }
-                
             }
         }
 
         function update(){
-            console.log(NoWallJumpVerif)
+            if(createE2==false){
+                EcranBrouillé.anims.play("AnimEcranF",true)
+            }
+            EcranBrouillé.x=player.x
+            EcranBrouillé.y=player.y
+            light.x=player.x
+            light.y=player.y
             console.log(player.x,player.y)
+            StalagmiteG.children.each(function(StalagmiteAutre) {
+                if(player.y>StalagmiteAutre.y && (player.x >= StalagmiteAutre.x-10 && player.x <= StalagmiteAutre.x+10)){
+                    StalagmiteAutre.setVelocityY(480)
+                    }
+            }, this);
+
             if(Transform2==true){
                 animwalkr="WalkR2";
                 animwalkl="WalkL2";
@@ -537,6 +641,7 @@
                 animfallL="Fall2R";
             }
             fdown = this.keys.f.isUp;
+            console.log(createR)
             if(this.keys.f.isDown){
                 spark1.setPosition(player.x, player.y);
             }else{
@@ -573,7 +678,7 @@
             if(createE==true){
                 lettreSprite.x=player.x
                 lettreSprite.y=player.y-32;
-                if(this.keys.e.isDown && Transform2==false && player.body.blocked.down){
+                if(this.keys.e.isDown && Transform2==false && player.body.blocked.down ){
                     player.anims.play("AnimationTransform",true)
                     InTransfo=true;
                     player.setVelocityX(0)
@@ -587,7 +692,8 @@
             }
 
             
-            if(((player.x >= 2523 && player.x <= 3600) && (player.y == 2512))&& createR==false){       //pop info item quand joueur a coté
+            if(((player.x >= 2538 && player.x <= 2998) && (player.y == 2352))&& createR==false){       //pop info item quand joueur a coté
+                console.log("createR")
                 playerReflet = RefletG.create(player.x,player.y-20, 'persoP');
                 playerReflet.flipY=true;
 
@@ -604,7 +710,8 @@
                 createR=true
             }
 
-            if(((player.x >= 2523 && player.x <= 3600) && (player.y <=2510)&& createR==true)){
+            if(((player.x >= 2538 && player.x <= 2998) && (player.y <=2350)&& createR==true)){
+                console.log("destroy")
                 playerReflet.destroy()
                 createR=false       
             }
@@ -624,10 +731,36 @@
                 }
             }
 
-            if(player.x<=2523 && createR==true){
+            if(player.x<=2538 && createR==true ||player.x >= 2998 && createR ==true){
                 playerReflet.destroy()
                 createR=false
             }
+
+            if(createR == true && createE2==false  && Noecran==false){
+                lettreSprite2 = this.add.sprite(player.x,player.y, 'LettreA');  
+                lettreSprite2.anims.play("LettreA",true)
+                createE2=true
+            }
+
+            if(createR==false && createE2==true  && Noecran==false){
+                lettreSprite2.destroy()
+                createE2=false       
+            }
+
+            if(createE2==true && Noecran==false){
+                lettreSprite2.x=player.x
+                lettreSprite2.y=player.y-32;
+                if(this.keys.e.isDown ){
+                    EcranBrouillé.anims.play("AnimEcranF2",true)
+                    console.log(EcranBrouillé.anims.currentFrame.index)
+                }
+            }
+            if(EcranBrouillé.anims.currentFrame.index==12){
+                        EcranBrouillé.setVisible(false)
+                        lettreSprite2.destroy()
+                        Noecran=true
+
+                    }
 
 
             if (player.body.blocked.down || player.body.blocked.left || player.body.blocked.right){
@@ -752,11 +885,11 @@
             if (Phaser.Input.Keyboard.JustDown(this.keys.espace)){
                 if (player.body.blocked.down && InTransfo==false) {
                     player.setVelocityY(-600);
-                    if(Transform2==true && player.direction=="gauche"){
+                    if(Transform2==true && player.direction=="gauche" &&  inmort==false){
                         player.anims.play(animjumpL,true)
-                    }else if(Transform2==true && player.direction=="droite"){
+                    }else if(Transform2==true && player.direction=="droite" && inmort==false){
                         player.anims.play(animjumpR,true)                  
-                    }else if(Transform2==true && player.direction=="immobile"){
+                    }else if(Transform2==true && player.direction=="immobile" && inmort==false){
                         player.anims.play(animjumpL,true)         
                     }
                     if(Transform2==false){
@@ -771,7 +904,7 @@
                         player.anims.play(animjumpL,true)
                     }else if(Transform2==true && player.direction=="droite"){
                         player.anims.play(animjumpR,true)                  
-                    }else if(Transform2==true && player.direction=="immobile"){
+                    }else if(Transform2==true && player.direction=="immobile" ){
                         player.anims.play(animjumpL,true)         
                     }
                     if(Transform2==false){
@@ -843,14 +976,14 @@
                 isfallin = true
                 indash=false
                 if(InWallGlideR==false & InWallGlideD==false){
-                    if(Transform2==true && player.direction=="gauche"){
+                    if(Transform2==true && player.direction=="gauche" && inmort==false ){
                         player.anims.play(animfallL,true)
-                    }else if(Transform2==true && player.direction=="droite"){
+                    }else if(Transform2==true && player.direction=="droite"  && inmort==false ){
                         player.anims.play(animfallR,true)             
-                    }else if(Transform2==true && player.direction=="immobile"){
+                    }else if(Transform2==true && player.direction=="immobile"  && inmort==false ){
                         player.anims.play(animfallL,true)         
                     }
-                    if(Transform2==false){
+                    if(Transform2==false  && inmort==false ){
                         player.anims.play("fall",true)                           
                     }
                 }
@@ -868,7 +1001,7 @@
                 }
                 if (indash==false){
                     player.direction="gauche"
-                    if(isfallin == false && injump2==false && FpressVerif==false){
+                    if(isfallin == false && injump2==false && FpressVerif==false  && inmort==false ){
                     player.anims.play(animwalkl, true)}
                 }
             }
@@ -879,15 +1012,15 @@
                 }
                 if (indash==false){
                     player.direction="droite"
-                    if(isfallin == false && injump2==false && FpressVerif==false){
+                    if(isfallin == false && injump2==false && FpressVerif==false  && inmort==false ){
                     player.anims.play(animwalkr, true)}
                 } 
             }
 
-            if (cursors.left.isUp && this.keys.q.isUp && cursors.right.isUp && this.keys.d.isUp && FpressVerif==false && isDownM==false){
+            if (this.keys.q.isUp && this.keys.d.isUp && FpressVerif==false && isDownM==false){
                 player.setVelocityX(0); 
                 player.direction="immobile"
-                if(isfallin == false && injump2==false && injump==false && InTransfo==false){
+                if(isfallin == false && injump2==false && injump==false && InTransfo==false  && inmort==false ){
                     player.anims.play(animidle, true)
                 }
             } 
