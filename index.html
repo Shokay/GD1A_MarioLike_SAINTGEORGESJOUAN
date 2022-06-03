@@ -124,9 +124,11 @@
                 this.indeath2=false,
                 this.DeathSpark=false,
                 this.NoWallJumpVerif=false;
+                this.nodash=true;
                 this.illudestroy=false;
                 this.checkpointsY=0;
                 this.checkpointsX=0;
+                this.ContactBlock=false;
                 this.lights.enable();
                 this.lights.setAmbientColor(0x555555);
                 
@@ -616,7 +618,6 @@
                 this.EcranBrouillé.y=this.player.y
                 this.light.x=this.player.x
                 this.light.y=this.player.y
-                console.log(this.player.x,this.player.y)
                 this.StalagmiteG.children.each(function(StalagmiteAutre) {
                     if(this.player.y>StalagmiteAutre.y && (this.player.x >= StalagmiteAutre.x-10 && this.player.x <= StalagmiteAutre.x+10)){
                         StalagmiteAutre.setVelocityY(480)
@@ -633,8 +634,7 @@
                     this.animfallL="Fall2R";
                 }
                 this.fdown = this.keys.f.isUp;
-                console.log(this.createR)
-                if(this.keys.f.isDown){
+                if(this.keys.f.isDown && this.nodash==false){
                     this.spark1.setPosition(this.player.x, this.player.y);
                 }else{
                     this.spark1.setPosition(0, 0);
@@ -685,7 +685,6 @@
 
                 
                 if(((this.player.x >= 2538 && this.player.x <= 2998) && (this.player.y == 2352))&& this.createR==false){       //pop info item quand joueur a coté
-                    console.log("createR")
                     this.playerReflet = this.RefletG.create(this.player.x,this.player.y-20, 'persoP');
                     this.playerReflet.flipY=true;
 
@@ -703,7 +702,6 @@
                 }
 
                 if(((this.player.x >= 2538 && this.player.x <= 2998) && (this.player.y <=2350)&& this.createR==true)){
-                    console.log("destroy")
                     this.playerReflet.destroy()
                     this.createR=false       
                 }
@@ -740,7 +738,6 @@
                 }
 
                 if(this.illucrée==true && Phaser.Input.Keyboard.JustDown(this.keys.e) ){
-                    console.log("oui")
                     this.EcranBrouillé.anims.play("AnimEcranF2",true)
                     this.illudestroy=true
                 }
@@ -760,7 +757,6 @@
                     this.IlluExistence.alpha += 0.1;
                 }
                 if(this.illudestroy==true){
-                    console.log("in")
                     this.IlluExistence.alpha -= 0.1;
                     if(this.IlluExistence.alpha<=0){
                         this.IlluExistence.destroy()
@@ -815,7 +811,7 @@
                 /////////////////
 
                 if(this.dash2==true){
-                if (this.keys.f.isDown && this.fallVerif==false){
+                if (this.keys.f.isDown && this.fallVerif==false && this.nodash==false){
                     this.player.anims.play("fcharge",true)
                     this.player.setVelocityX(0)
                     this.player.setVelocityY(-25);
@@ -960,7 +956,7 @@
                 }
 
                 
-                if(this.fdown && this.FpressVerif == true && this.fallVerif==false){
+                if(this.fdown && this.FpressVerif == true && this.fallVerif==false && this.nodash==false){
                     this.cameras.main.shake(50, 0.001);
                     this.compteur--
                     this.indash = true;
@@ -1063,14 +1059,18 @@
                 this.load.image("illu1", "assets/IlluEau.png");
                 this.load.image("illu2", "assets/IlluPhoto.png");
                 this.load.image("Nenuphar", "assets/Nenuphar.png");
+                this.load.image("BlocMove", "assets/PlateformeMove.png");
+                this.load.image("BlocMove2", "assets/PlatefromeMove2.png");
                 this.load.image("PhotoImage", "assets/photo.png");
                 this.load.image("InvBlock3264", "assets/3264hitbox.png");
                 this.load.image("particules", "assets/particletest.png");
                 this.load.image("particules2", "assets/particletest2.png");
                 this.load.image("SpikeImage", "assets/spike.png");
                 this.load.image("SpikeImage2", "assets/spike2.png");
+                this.load.image("SkeletonI", "assets/Skeleton.png");
                 this.load.image("StalagmiteImage", "assets/Stalagmite.png");
                 this.load.image("EcranB", "assets/EcranB.png");
+                this.load.image("StompBloc", "assets/StompBloc.png");
         
                 this.load.tilemapTiledJSON("carte2", "MapProto2.json");  
 
@@ -1085,6 +1085,9 @@
 
                 this.load.spritesheet('TransformAnim','assets/TransformationAnim.png',
                     { frameWidth: 32, frameHeight: 32 });
+
+                this.load.spritesheet('TransformAnim2','assets/TransformationAnim2.png',
+                    { frameWidth: 32, frameHeight: 64 });
                     
                 this.load.spritesheet('Invocation','assets/InvocationSpriteSheet.png',
                     { frameWidth: 32, frameHeight: 32 });
@@ -1095,11 +1098,27 @@
                 this.load.spritesheet('AnimPerso2','assets/spritesheetP2.png',
                     { frameWidth: 32, frameHeight: 32 });
 
+                this.load.spritesheet('AnimPerso3','assets/SpriteSheetP3.png',
+                    { frameWidth: 32, frameHeight: 64 });
+
+
                 this.load.spritesheet('DeathPerso','assets/DeathSpriteSheet.png',
                     { frameWidth: 32, frameHeight: 32 });
 
+                this.load.spritesheet('DeathPerso2','assets/DeathSpriteSheet2.png',
+                    { frameWidth: 32, frameHeight: 64 });
+
                 this.load.spritesheet('JumpHole','assets/JumpHoleSpriteSheet.png',
                     { frameWidth: 32, frameHeight: 32 });
+
+                this.load.spritesheet('ChargeDash','assets/ChargeDash.png',
+                    { frameWidth: 32, frameHeight: 64 });
+                    
+                this.load.spritesheet('InDashD','assets/DashG.png',
+                    { frameWidth: 64, frameHeight: 32 });
+
+                this.load.spritesheet('InDashG','assets/DashD.png',
+                    { frameWidth: 64, frameHeight: 32 });
 
             }
 
@@ -1119,6 +1138,7 @@
                 this.colorAppliqué=false;
                 this.startFall = false;
                 this.compteurF = 30;
+                this.onblock=false;
                 this.fallVerif=false;
                 this.isfallin=false;
                 this.injump=false;
@@ -1142,7 +1162,8 @@
                 this.InWallGlideD=false;
                 this.InWallGlideR=false;
                 this.createE=false;
-                this.Transform2=true;
+                this.createE4=false;
+                this.Transform2=false;
                 this.animwalkr="WalkR";
                 this.Noecran=false;
                 this.animwalkl="WalkL";
@@ -1150,18 +1171,27 @@
                 this.animjump="Jump";
                 this.animfall="fall";
                 this.animjumpR="Jump2L";
+                this.illudestroy2Stop=false ;
                 this.animjumpL="Jump2R";
                 this.animfallR="Fall2L";
                 this.animfallL="Fall2R";
+                this.BlocDirection="droite"
                 this.InTransfo=false;
                 this.Indeath=false;
+                this.speedPlateforme=100;
+                this.maxDB =  0;
+                this.MortVerif=false;
+                this.minDB =  0;
                 this.indeath2=false,
                 this.DeathSpark=false,
+                this.Transform3=false;
                 this.NoWallJumpVerif=false;
                 this.checkpointsY=0;
+                this.TueBlock=false;
                 this.checkpointsX=0;
                 this.lights.enable();
                 this.createE3=false;
+                this.infunctionBloc=false;
                 this.lights.setAmbientColor(0x555555);
                 
                 const carteDuNiveau = this.add.tilemap("carte2");
@@ -1215,10 +1245,22 @@
                         tileset
                         ); 
 
+                this.StompBlocG = this.physics.add.group({
+                    allowGravity:false,
+                    immovable:true
+                });
+
+                carteDuNiveau.getObjectLayer('StompBloc').objects.forEach((bloc) => {
+                    this.StompBlocB = this.StompBlocG.create(bloc.x-32 , bloc.y , "StompBloc").setOrigin(0);               //importation via calque objet feu de camp
+                    this.StompBlocB.body.setSize(64,64,true)  
+                    this.StompBlocB.setOffset(0, 320)
+                    this.StompBlocB.setVelocityY(300)
+                });
                 const plateformes = carteDuNiveau.createLayer(
                         "plateformeP2",
                         tileset
                         ); 
+
                 const Decorsp = carteDuNiveau.createLayer(
                         "DecorsP",
                         tileset
@@ -1232,6 +1274,16 @@
 
                 const FondCabane = carteDuNiveau.createLayer(
                         "CabaneFond",
+                        tileset
+                        ); 
+
+                const collideBloc = carteDuNiveau.createLayer(
+                        "collideBloc",
+                        tileset
+                        ); 
+
+                const CollideStomp = carteDuNiveau.createLayer(
+                        "StompCollide",
                         tileset
                         ); 
 
@@ -1297,6 +1349,11 @@
                     immovable:true,
                 });
 
+                this.OsG = this.physics.add.group({
+                    allowGravity:true,
+                    immovable:true,
+                });
+
                 this.SpikeG2 = this.physics.add.group({
                     allowGravity:false,
                     immovable:true,
@@ -1304,6 +1361,10 @@
 
                 carteDuNiveau.getObjectLayer('Photo').objects.forEach((bloc) => {
                     this.imageB = this.ImageG.create(bloc.x, bloc.y , "PhotoImage").setOrigin(0);               //importation via calque objet feu de camp
+                });
+
+                carteDuNiveau.getObjectLayer('Os').objects.forEach((bloc) => {
+                    this.OsB = this.OsG.create(bloc.x , bloc.y , "SkeletonI").setOrigin(0);               //importation via calque objet feu de camp
                 });
                             
                 this.anims.create({
@@ -1316,7 +1377,59 @@
                     immovable: true,
                     allowGravity:false,
                 });
+
+                this.BlocMoveEG = this.physics.add.group({
+                    allowGravity:false,
+                    immovable: true,
+                });
+
+                this.BlocMoveED = this.physics.add.group({
+                    allowGravity:false,
+                    immovable: true,
+                });
+
+                this.BlocMoveG2 = this.physics.add.group({
+                    allowGravity:false,
+                    immovable: true,
+                });
+
+                carteDuNiveau.getObjectLayer('PlateformeMoveG').objects.forEach((bloc) => {
+                    this.BlocMoveB = this.BlocMoveEG.create(bloc.x , bloc.y-32 , "BlocMove").setOrigin(0);               //importation via calque objet feu de camp
+                    this.BlocMoveB.setBounce(1)
+                    //this.BlocMoveB.maxDB =  bloc.properties[0].value
+                    //this.BlocMoveB.minDB =  bloc.properties[1].value
+                });
+
+                carteDuNiveau.getObjectLayer('PlateformeMoveD').objects.forEach((bloc) => {
+                    this.BlocMoveB2 = this.BlocMoveED.create(bloc.x , bloc.y-32 , "BlocMove").setOrigin(0);               //importation via calque objet feu de camp
+                    this.BlocMoveB2.setBounce(1)
+                    //this.BlocMoveB.maxDB =  bloc.properties[0].value
+                    //this.BlocMoveB.minDB =  bloc.properties[1].value
+                });
+
+                this.BlocMoveED.setVelocityX(this.speedPlateforme)
+
+                this.BlocMoveEG.setVelocityX(-this.speedPlateforme)
+
+
+                collideBloc.setCollisionByProperty({ estSolide: true }); 
                 
+                CollideStomp.setCollisionByProperty({ estSolide: true }); 
+
+                this.physics.add.collider(this.BlocMoveEG,collideBloc)
+                
+                this.physics.add.collider(this.BlocMoveED,collideBloc)
+
+                
+
+
+                carteDuNiveau.getObjectLayer('PlateformeMoveUp').objects.forEach((bloc) => {
+                    this.BlocMoveB2 = this.BlocMoveG2.create(bloc.x , bloc.y-32 , "BlocMove2").setOrigin(0);               //importation via calque objet feu de camp
+                    this.BlocMoveB2.setVelocityY(this.speedPlateforme)
+                    this.BlocMoveB2.maxDB2 =  bloc.properties[0].value
+                    this.BlocMoveB2.minDB2 =  bloc.properties[1].value
+                });
+
 
                 this.player = this.physics.add.sprite(this.spawnXSortieScene,this.spawnYSortieScene, 'persoP');            //init joueur
                 this.player.body.setSize(24,19,true)        
@@ -1324,10 +1437,16 @@
                 this.player.alpha = 1; 
                 this.player.setMaxVelocity(10000,900)
 
-
+                this.physics.add.collider(this.player,this.BlocMoveEG,this.deplacementBlock,null,this)
+                this.physics.add.collider(this.player,this.BlocMoveED,this.deplacementBlock,null,this)
+                
                 this.StalagmiteG = this.physics.add.group({
                     allowGravity:false,
                 });
+
+
+                this.physics.add.collider(this.StompBlocG,CollideStomp,this.MoveBlock,null,this)
+                this.physics.add.collider(this.player,this.StompBlocG,this.MortBlock,null,this)
 
                 carteDuNiveau.getObjectLayer('Stalagmite').objects.forEach((bloc) => {
                     this.StalagmiteB = this.StalagmiteG.create(bloc.x , bloc.y-32 , "StalagmiteImage").setOrigin(0);               //importation via calque objet feu de camp
@@ -1383,14 +1502,18 @@
                 this.blocG = this.physics.add.staticGroup();
                 this.physics.add.collider(this.ImageG,plateformes)
                 this.physics.add.collider(this.ImageG,plateformesG)
+                this.physics.add.collider(this.OsG,plateformes)
+                this.physics.add.collider(this.OsG,plateformesG)
 
 
                 plateformes.setCollisionByProperty({ estSolide: true }); 
                 plateformesG.setCollisionByProperty({ estSolide: true });
+
                 this.physics.add.collider(this.player, plateformes);
                 this.physics.add.collider(this.player, plateformesG);
                 this.physics.add.collider(this.player, this.NenupharG);
                 this.player.setCollideWorldBounds(true);
+                this.physics.add.collider(this.player,this.BlocMoveG2);
                 this.physics.add.collider(this.player,this.blocG);
                 this.physics.add.collider(this.StalagmiteG,plateformesG, this.destroy,null,this);
                 this.physics.add.overlap(this.player,this.SpikeG,this.Mort,null,this);
@@ -1402,8 +1525,8 @@
                         const blocsprite = this.blocG.create(bloc.x+=16 , bloc.y -= 16, "blocVide").setOrigin(0);               //importation via calque objet feu de camp
                 });
 
-                this.physics.world.setBounds(0, 0, 10880, 6400);
-                this.cameras.main.setBounds(0, 0, 10880,6400);
+                this.physics.world.setBounds(0, 0, 22400, 6400);
+                this.cameras.main.setBounds(0, 0, 22400,6400);
                 this.cameras.main.zoom = 2;                  //Camera
                 this.cameras.main.startFollow(this.player); 
 
@@ -1435,6 +1558,34 @@
                 this.anims.create({
                         key: 'AnimationTransform',           
                         frames: this.anims.generateFrameNumbers('TransformAnim', {start:0,end:11}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'ChargeDashA',           
+                        frames: this.anims.generateFrameNumbers('ChargeDash', {start:0,end:3}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'InDashDA',           
+                        frames: this.anims.generateFrameNumbers('InDashD', {start:0,end:1}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'InDashGA',           
+                        frames: this.anims.generateFrameNumbers('InDashG', {start:0,end:1}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'AnimationTransform2',           
+                        frames: this.anims.generateFrameNumbers('TransformAnim2', {start:0,end:10}),          //creation des animation
                         frameRate: 5,
                         repeat: -1,
                     });  
@@ -1585,9 +1736,88 @@
                         repeat: -1,
                     }); 
 
+////////////////////////////////////////////////
+                this.anims.create({
+                        key: 'Immobile2G2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:0,end:3}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'WalkL22',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:4,end:7}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'WalkR22',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:8,end:11}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+                    
+                this.anims.create({
+                        key: 'Jump2R2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:12,end:16}),          //creation des animation
+                        frameRate: 10,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'Jump2L2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:19,end:23}),          //creation des animation
+                        frameRate: 10,
+                        repeat: -1,
+                    });
+
+                this.anims.create({
+                        key: 'Fall2R2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:17,end:18}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    });
+
+                this.anims.create({
+                        key: 'Fall2L2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:24,end:25}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+                    
+                this.anims.create({
+                        key: 'WallSlideL2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:26,end:27}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'WallSlideR2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:28,end:29}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.anims.create({
+                        key: 'Immobile2D2',           
+                        frames: this.anims.generateFrameNumbers('AnimPerso3', {start:30,end:33}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                /////////////////////////////////////////////                    
+
                 this.anims.create({
                         key: 'DeathAnim',           
                         frames: this.anims.generateFrameNumbers('DeathPerso', {start:0,end:5}),          //creation des animation
+                        frameRate: 15,
+                    }); 
+
+                this.anims.create({
+                        key: 'DeathAnim2',           
+                        frames: this.anims.generateFrameNumbers('DeathPerso2', {start:0,end:5}),          //creation des animation
                         frameRate: 15,
                     }); 
 
@@ -1626,6 +1856,16 @@
                 this.fdown = this.keys.f.isUp;
             }
 
+            deplacementBlock(player,bloc){
+                this.infunctionBloc=true;
+                if (bloc.body.velocity.x > 0){
+                    this.player.setVelocityX(this.speedPlateforme+10)
+                }
+                if (bloc.body.velocity.x < 0){
+                    this.player.setVelocityX(-this.speedPlateforme+10)
+                }
+            }
+
             ChekPointsF(){
                 this.checkpointsX=this.player.x
                 this.checkpointsY=this.player.y
@@ -1634,16 +1874,81 @@
             destroy(StalagmiteA){
                 StalagmiteA.disableBody(true,true)
             }
+
+            MoveBlock(BlocStompA,CollideBlocStomp){
+                if(BlocStompA.body.blocked.down){
+                    BlocStompA.setVelocityY(-300)
+                }else{
+                    BlocStompA.setVelocityY(300)
+                }
+            }
+
+            MoveF(player,bloc){
+                this.infunctionBloc=true;
+                if(this.BlocDirection=="droite"){
+                    this.player.setVelocityX(this.speedPlateforme)
+                }
+                if(this.BlocDirection=="gauche"){
+                    this.player.setVelocityX(-this.speedPlateforme)
+                }
+            }
             
 
             Mort(){
-                this.inmort=true
-                if(this.Transform2==true){
-                    this.InTransfo=true;
-                    this.player.setVelocityX(0)
-                    this.player.setVelocityY(-25);
-                    this.player.anims.play("DeathAnim",true)
-                    if(this.player.anims.currentFrame.index==6){
+                this.MortVerif=true
+            }
+
+            MortBlock(){
+                this.ContactBlock=true;
+            }
+
+            update(){
+
+                if(this.ContactBlock==true){
+                    this.TueBlock=true;
+                    this.ContactBlock=false;
+                }else{
+                    this.TueBlock=false;
+                }
+    
+                if((this.player.body.blocked.down || this.FpressVerif==true || this.indash==true) && this.TueBlock==true){
+                    this.Mort()
+                }
+
+                if(this.MortVerif==true){
+                    this.inmort=true
+                    if(this.Transform2==true || this.Transform3==true){
+                        this.InTransfo=true;
+                        this.player.setVelocityX(0)
+                        this.player.setVelocityY(-25);
+                        if(this.Transform2==true){
+                            this.player.anims.play("DeathAnim",true)
+                        }
+                        if(this.Transform3==true){
+                            this.player.anims.play("DeathAnim2",true)
+                        }
+                        if(this.player.anims.currentFrame.index==6){
+                            this.Indeath=true;
+                            this.player.setVisible(false);
+                            if(this.indeath2==false){
+                                this.indeath2=true
+                            setTimeout(() => {
+                                this.InTransfo=false;   //if last frame
+                                this.player.setVisible(true);
+                                this.player.x=this.checkpointsX;   
+                                this.player.y=this.checkpointsY; 
+                                this.indeath2=false; 
+                                this.Indeath=false;
+                                this.DeathSpark=false;
+                                this.inmort=false;
+                                this.MortVerif=false;
+                            }, 500);
+                            }
+                        }
+                    }else if(this.Transform2==false){
+                        this.player.setVelocityX(0)
+                        this.player.setVelocityY(0);
+                        this.InTransfo=true
                         this.Indeath=true;
                         this.player.setVisible(false);
                         if(this.indeath2==false){
@@ -1653,36 +1958,24 @@
                             this.player.setVisible(true);
                             this.player.x=this.checkpointsX;   
                             this.player.y=this.checkpointsY; 
+                            this.player.body.setVelocityX(0)
+                            this.player.body.setVelocityY(0)
                             this.indeath2=false; 
                             this.Indeath=false;
                             this.DeathSpark=false;
                             this.inmort=false;
-                        }, 500);
+                            this.MortVerif=false;
+                            }, 500);
                         }
                     }
-                }else if(this.Transform2==false){
-                    this.player.setVelocityX(0)
-                    this.player.setVelocityY(0);
-                    this.InTransfo=true
-                    this.Indeath=true;
-                    this.player.setVisible(false);
-                    if(this.indeath2==false){
-                        this.indeath2=true
-                    setTimeout(() => {
-                        this.InTransfo=false;   //if last frame
-                        this.player.setVisible(true);
-                        this.player.x=this.checkpointsX;   
-                        this.player.y=this.checkpointsY; 
-                        this.indeath2=false; 
-                        this.Indeath=false;
-                        this.DeathSpark=false;
-                        this.inmort=false;
-                        }, 500);
-                    }
                 }
-            }
 
-            update(){
+                if(this.infunctionBloc==true){
+                    this.onblock=true ;
+                    this.infunctionBloc=false;
+                }else{
+                    this.onblock=false ;
+                }
 
                 if((this.player.x >= 5335 && this.player.x <= 5475) && (this.player.y >= 6191 && this.player.y <= 6256 )){
                     this.MurCabane.setVisible(false)
@@ -1717,6 +2010,17 @@
                         }
                 }, this);
 
+              
+
+                this.BlocMoveG2.children.each(function(BlocMoveA) {
+                    if(BlocMoveA.y<=BlocMoveA.maxDB2){
+                        BlocMoveA.setVelocityY(this.speedPlateforme)
+                    }
+                    if(BlocMoveA.y>=BlocMoveA.minDB2){
+                        BlocMoveA.setVelocityY(-this.speedPlateforme)
+                    }
+                }, this);
+
                 if(this.Transform2==true){
                     this.animwalkr="WalkR2";
                     this.animwalkl="WalkL2";
@@ -1731,8 +2035,23 @@
                     this.animfallR="Fall2L";
                     this.animfallL="Fall2R";
                 }
+
+                if(this.Transform3==true){
+                    this.animwalkr="WalkR22";
+                    this.animwalkl="WalkL22";
+                    if(this.player.direction=="gauche"){
+                        this.animidle="Immobile2G2";
+                    }
+                    if(this.player.direction=="droite"){
+                        this.animidle="Immobile2D2";
+                    }
+                    this.animjumpR="Jump2L2";
+                    this.animjumpL="Jump2R2";
+                    this.animfallR="Fall2L2";
+                    this.animfallL="Fall2R2";
+                }
                 this.fdown = this.keys.f.isUp;
-                if(this.keys.f.isDown){
+                if(this.keys.f.isDown  && this.Transform3==true  && this.inmort==false){
                     this.spark1.setPosition(this.player.x, this.player.y);
                 }else{
                     this.spark1.setPosition(0, 0);
@@ -1765,24 +2084,53 @@
                     this.createE=false       
                 }
 
-                if(this.illucrée2==true && Phaser.Input.Keyboard.JustDown(this.keys.e )&& this.Transform2==false ){
-                    console.log("oui")
+                if(((this.player.x >= this.OsB.x-50 && this.player.x <= this.OsB.x+50) && (this.player.y >=this.OsB.y-50 && this.player.y <= this.OsB.y+50) && this.createE4==false)){
+                    this.lettreSprite4 = this.add.sprite(this.player.x,this.player.y, 'LettreA');  
+                    this.lettreSprite4.anims.play("LettreA",true)
+                    this.createE4=true
+                }
+
+                if(((this.player.x <= this.OsB.x-50 || this.player.x >= this.OsB.x+50) && this.createE4==true)){
+                    this.lettreSprite4.destroy()
+                    this.createE4=false       
+                }
+
+                if(this.createE4==true){
+                    this.lettreSprite4.x=this.player.x
+                    this.lettreSprite4.y=this.player.y-32;
+                    if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform3==false && this.player.body.blocked.down ){
+                        this.player.anims.play("AnimationTransform2",true)
+                        this.InTransfo=true;
+                        this.player.setVelocityX(0)
+                        this.player.y-=20
+                        this.player.body.setSize(32,64,true)
+                        setTimeout(() => {
+                                this.player.direction="gauche"
+                                this.Transform3=true; 
+                                this.InTransfo=false; 
+                                this.Transform2=false;  
+                            }, 2370);
+                        }
+                }
+
+                if(this.illucrée2==true && Phaser.Input.Keyboard.JustDown(this.keys.e ) && this.Transform2==false ){
                     this.illudestroy2=true
                     this.player.anims.play("AnimationTransform",true)
                     this.InTransfo=true;
                     this.player.setVelocityX(0)
                     setTimeout(() => {
-                            this.player.direction="gauche"
+                            this.player.direction="gauche";
                             this.Transform2=true; 
                             this.InTransfo=false;
                             this.player.body.setSize(20,0,true)        
                         }, 2370);
                 }
 
+
                 if(this.createE==true){
                     this.lettreSprite.x=this.player.x
                     this.lettreSprite.y=this.player.y-32;
-                    if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform2==false && this.player.body.blocked.down && this.illucrée2==false ){
+                    if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform2==false && this.player.body.blocked.down && this.illucrée2==false){
                         this.IlluPhoto = this.add.sprite(this.player.x,this.player.y, 'illu2');
                         this.IlluPhoto.alpha=0
                         this.IlluPhoto.setScale(0.15)
@@ -1790,18 +2138,16 @@
 
                     }
                 }
-                
 
-
-                if(this.illucrée2==true && this.illudestroy2==false){
+                if(this.illucrée2==true && this.illudestroy2==false && this.illudestroy2Stop==false){
                     this.IlluPhoto.alpha += 0.1;
                 }
 
                 if(this.illudestroy2==true){
-                    console.log("in")
                     this.IlluPhoto.alpha -= 0.1;
                     if(this.IlluPhoto.alpha<=0){
                         this.IlluPhoto.destroy()
+                        this.illudestroy2Stop=true;
                     }
                 }
 
@@ -1819,7 +2165,7 @@
                 if(this.createE3==true){
                     this.lettreSprite3.x=this.player.x
                     this.lettreSprite3.y=this.player.y-32;
-                    if(this.keys.e.isDown){
+                    if(this.keys.e.isDown ){
                         this.player.anims.play("JumpHoleA",true)
                        this.InTransfo=true
                        this.player.setVelocityX(0)
@@ -1848,21 +2194,31 @@
                     this.indash = false;
                     this.fallVerif=false;
                     this.injump=false;
-                    this.tempsdashS=true
-                    this.injump2=false
+                    this.tempsdashS=true;
+                    this.injump2=false;
                 }
 
                 ///glisse
-                if(this.player.body.blocked.left && this.injump==false && this.Transform2==true){
-                    this.player.anims.play("WallSlideR",true)
+                if(this.player.body.blocked.left && this.injump==false && (this.Transform2==true || this.Transform3==true)){
+                    if(this.Transform2==true){
+                        this.player.anims.play("WallSlideR",true)
+                    }
+                    if(this.Transform3==true){
+                        this.player.anims.play("WallSlideR2",true)
+                    }
                     this.InWallGlideD=true
                     this.player.setVelocityY(10)
                 }else{
                     this.InWallGlideD=false;
                 }
 
-                if(this.player.body.blocked.right && this.injump==false && this.Transform2==true ){
-                    this.player.anims.play("WallSlideL",true)
+                if(this.player.body.blocked.right && this.injump==false && (this.Transform2==true || this.Transform3==true) ){
+                    if(this.Transform2==true){
+                        this.player.anims.play("WallSlideL",true)
+                    }
+                    if(this.Transform3==true){
+                        this.player.anims.play("WallSlideL2",true)
+                    }
                     this.InWallGlideR=true
                     this.player.setVelocityY(10)
                 }else{
@@ -1870,9 +2226,9 @@
                 }
                 /////////////////
 
-                if(this.dash2==true){
-                if (this.keys.f.isDown && this.fallVerif==false){
-                    this.player.anims.play("fcharge",true)
+                if(this.dash2==true ){
+                if (this.keys.f.isDown && this.fallVerif==false  && this.Transform3==true  && this.inmort==false){
+                    this.player.anims.play("ChargeDashA",true)
                     this.player.setVelocityX(0)
                     this.player.setVelocityY(-25);
                     this.FpressVerif = true;
@@ -1922,14 +2278,14 @@
                     this.ParticuleSpeed=10
                 }
 
-                if(this.injump==true && this.player.body.blocked.left && this.Transform2==true){
+                if(this.injump==true && this.player.body.blocked.left && (this.Transform2==true || this.Transform3==true)){
                     this.injump2=false
                     this.inwalljumpG=true
                     this.player.setVelocityX(50)
                     this.compteurwallstart=true
                 }   
 
-                if(this.injump==true && this.player.body.blocked.right && this.Transform2==true){
+                if(this.injump==true && this.player.body.blocked.right && (this.Transform2==true || this.Transform3==true)){
                     this.inwalljumpD=true
                     this.player.setVelocityX(-50)
                     this.compteurwallstart=true
@@ -1954,29 +2310,29 @@
                 if (Phaser.Input.Keyboard.JustDown(this.keys.espace)){
                     if (this.player.body.blocked.down && this.InTransfo==false) {
                         this.player.setVelocityY(-600);
-                        if(this.Transform2==true && this.player.direction=="gauche" &&  this.inmort==false){
+                        if((this.Transform2==true || this.Transform3==true) && this.player.direction=="gauche" &&  this.inmort==false){
                             this.player.anims.play(this.animjumpL,true)
-                        }else if(this.Transform2==true && this.player.direction=="droite" && this.inmort==false){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="droite" && this.inmort==false){
                             this.player.anims.play(this.animjumpR,true)                  
-                        }else if(this.Transform2==true && this.player.direction=="immobile" && this.inmort==false){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="immobile" && this.inmort==false){
                             this.player.anims.play(this.animjumpL,true)         
                         }
-                        if(this.Transform2==false){
+                        if(this.Transform2==false && this.Transform3==false){
                             this.player.anims.play("Jump",true)   
                         }
                         this.injump=true
                         this.injump2=true
                         this.startjump=true
                     }
-                    if (this.player.body.blocked.right && this.Transform2==true) {
-                        if(this.Transform2==true && this.player.direction=="gauche"){
+                    if (this.player.body.blocked.right && (this.Transform2==true || this.Transform3==true)) {
+                        if((this.Transform2==true || this.Transform3==true) && this.player.direction=="gauche"){
                             this.player.anims.play(this.animjumpL,true)
-                        }else if(this.Transform2==true && this.player.direction=="droite"){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="droite"){
                             this.player.anims.play(this.animjumpR,true)                  
-                        }else if(this.Transform2==true && this.player.direction=="immobile" ){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="immobile" ){
                             this.player.anims.play(this.animjumpL,true)         
                         }
-                        if(this.Transform2==false){
+                        if(this.Transform2==false && this.Transform3==false){
                             this.player.anims.play("Jump",true)   
                         }
                         this.player.setVelocityY(-600);
@@ -1985,16 +2341,16 @@
                         this.startjump=true
                         this.player.setVelocityX(-150)
                     }
-                    if (this.player.body.blocked.left && this.Transform2==true) {
+                    if (this.player.body.blocked.left && (this.Transform2==true || this.Transform3==true)) {
                         this.player.setVelocityY(-600);
-                        if(this.Transform2==true && this.player.direction=="gauche"){
+                        if((this.Transform2==true || this.Transform3==true) && this.player.direction=="gauche"){
                             this.player.anims.play(this.animjumpL,true)
-                        }else if(this.Transform2==true && this.player.direction=="droite"){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="droite"){
                             this.player.anims.play(this.animjumpR,true)                  
-                        }else if(this.Transform2==true && this.player.direction=="immobile"){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="immobile"){
                             this.player.anims.play(this.animjumpL,true)         
                         }
-                        if(this.Transform2==false){
+                        if(this.Transform2==false && this.Transform3==false){
                             this.player.anims.play("Jump",true)   
                         }
                         this.injump=true
@@ -2016,18 +2372,18 @@
                 }
 
                 
-                if(this.fdown && this.FpressVerif == true && this.fallVerif==false){
+                if(this.fdown && this.FpressVerif == true && this.fallVerif==false && this.inmort==false && this.InTransfo==false){
                     this.cameras.main.shake(50, 0.001);
                     this.compteur--
                     this.indash = true;
                     this.dash2 = false;
                     if (this.player.direction=="gauche"){
-                        this.player.anims.play("dashG",true)
+                        this.player.anims.play("InDashGA",true)
                         this.player.setVelocityX(-(this.valdash*10))
                         this.player.setVelocityY(-25);
                     }
                     if (this.player.direction=="droite"){
-                        this.player.anims.play("dashD",true)
+                        this.player.anims.play("InDashDA",true)
                         this.player.setVelocityX(this.valdash*10);
                         this.player.setVelocityY(-25);
                     }
@@ -2044,24 +2400,31 @@
                 if(this.player.body.velocity.y>0 ){
                     this.isfallin = true
                     this.indash=false
-                    if(this.InWallGlideR==false & this.InWallGlideD==false){
-                        if(this.Transform2==true && this.player.direction=="gauche" && this.inmort==false ){
+                    if(this.InWallGlideR==false & this.InWallGlideD==false && this.InTransfo==false){
+                        if((this.Transform2==true || this.Transform3==true) && this.player.direction=="gauche" && this.inmort==false ){
                             this.player.anims.play(this.animfallL,true)
-                        }else if(this.Transform2==true && this.player.direction=="droite"  && this.inmort==false ){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="droite"  && this.inmort==false ){
                             this.player.anims.play(this.animfallR,true)             
-                        }else if(this.Transform2==true && this.player.direction=="immobile"  && this.inmort==false ){
+                        }else if((this.Transform2==true || this.Transform3==true) && this.player.direction=="immobile"  && this.inmort==false ){
                             this.player.anims.play(this.animfallL,true)         
                         }
-                        if(this.Transform2==false  && this.inmort==false ){
+                        if(this.Transform2==false  && this.inmort==false && this.Transform3==false ){
                             this.player.anims.play("fall",true)                           
                         }
                     }
                 }else{
                     this.isfallin = false
                 }
-
                 if(this.player.body.velocity.y>0){
                     this.indash=false
+                }
+
+                if(this.indash==true){
+                    this.player.setSize(32,20);
+                }
+                if(this.indash==false && this.Transform3==true){
+                    this.player.body.setSize(22,58,true)
+                    this.player.setOffset(5,5)
                 }
 
                 if (this.keys.q.isDown && this.InTransfo==false){ 
@@ -2086,7 +2449,7 @@
                     } 
                 }
 
-                if (this.keys.q.isUp && this.keys.d.isUp && this.FpressVerif==false && this.isDownM==false){
+                if (this.keys.q.isUp && this.keys.d.isUp && this.FpressVerif==false && this.isDownM==false && this.onblock==false ){
                     this.player.setVelocityX(0); 
                     this.player.direction="immobile"
                     if(this.isfallin == false && this.injump2==false && this.injump==false && this.InTransfo==false  && this.inmort==false ){
