@@ -154,6 +154,7 @@
                         tileset
                         ); 
 
+
                 const FondNiveau2 = carteDuNiveau.createLayer(
                         "Background2",
                         tileset
@@ -185,6 +186,11 @@
                         ); 
                 const Decorsp = carteDuNiveau.createLayer(
                         "DecorsP",
+                        tileset
+                        ); 
+
+                const Decorsp2 = carteDuNiveau.createLayer(
+                        "DecorsP2",
                         tileset
                         ); 
 
@@ -1163,7 +1169,7 @@
                 this.InWallGlideR=false;
                 this.createE=false;
                 this.createE4=false;
-                this.Transform2=false;
+                this.Transform2=true;
                 this.animwalkr="WalkR";
                 this.Noecran=false;
                 this.animwalkl="WalkL";
@@ -1216,6 +1222,16 @@
                         tileset
                         ); 
 
+                const FondNiveau4 = carteDuNiveau.createLayer(
+                        "Background4",
+                        tileset
+                        ); 
+
+                const FondNiveau3 = carteDuNiveau.createLayer(
+                        "Background3",
+                        tileset
+                        ); 
+
                 const FondNiveau2 = carteDuNiveau.createLayer(
                         "Background2",
                         tileset
@@ -1225,6 +1241,17 @@
                         "Background1",
                         tileset
                         ); 
+
+                const FondNiveauDecors2 = carteDuNiveau.createLayer(
+                        "BackgroundDecors2",
+                        tileset
+                        ); 
+
+                const FondNiveauDecors1 = carteDuNiveau.createLayer(
+                        "BackgroundDecors1",
+                        tileset
+                        ); 
+
                 const FondGrotte2 = carteDuNiveau.createLayer(
                         "FondGrotte2",
                         tileset2
@@ -1234,16 +1261,22 @@
                         "FondGrotte",
                         tileset
                         );
-                        
-                const decorsFond2 = carteDuNiveau.createLayer(
-                        "DecorsFond2",
-                        tileset
-                        ); 
 
                 const decorsFond = carteDuNiveau.createLayer(
                         "DecorsFond",
                         tileset
                         ); 
+  
+                const decorsFond2 = carteDuNiveau.createLayer(
+                        "DecorsFond2",
+                        tileset
+                        ); 
+
+                const decorsFond3 = carteDuNiveau.createLayer(
+                        "DecorsFond3",
+                        tileset
+                        ); 
+
 
                 this.StompBlocG = this.physics.add.group({
                     allowGravity:false,
@@ -1287,8 +1320,8 @@
                         tileset
                         ); 
 
-                FondNiveau2.setScrollFactor(0.8)
-                FondNiveau1.setScrollFactor(0.9)
+                //FondNiveau2.setScrollFactor(0.8)
+                //FondNiveau1.setScrollFactor(0.9)
             carteDuNiveau.getObjectLayer('spawnJoueur').objects.forEach((spawnJoueur) => {
                 this.spawnXSortieScene = spawnJoueur.x, 
                 this.spawnYSortieScene =  spawnJoueur.y
