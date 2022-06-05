@@ -16,6 +16,99 @@
 <body>
     <script type="text/javascript">
 
+                class EcranStart extends Phaser.Scene {             //init de la premiere scene 
+            constructor() {
+                super("EcranStart")
+            }
+
+            preload() {
+
+                this.load.image("TitleStart", "assets/IlluStart.png");           //crée le title screen
+
+            }
+
+            create() {
+
+                this.imageAcceuil = this.physics.add.staticGroup();         //place le title screen
+                this.imageAcceuil.create(640, 360, 'TitleStart');
+
+                this.cursors = this.input.keyboard.createCursorKeys();
+
+            }
+
+            update() {
+
+            if (this.cursors.space.isDown) {
+                this.scene.start("EcranTitre");               //changement de scene si space et down
+            }
+
+            }
+        }
+
+                class EcranTitre extends Phaser.Scene {             //init de la premiere scene 
+            constructor() {
+                super("EcranTitre")
+            }
+
+            preload() {
+
+                this.load.image("Title_Screen", "assets/IlluDebut.png");           //crée le title screen
+                this.load.bitmapFont('carrier_command', 'assets/carrier_command.png', 'assets/carrier_command.xml');
+                this.load.spritesheet('AnimTouche2','assets/letreE.png',
+                    { frameWidth: 64, frameHeight: 64 });
+
+            }
+
+            create() {
+
+                this.imageAcceuil = this.physics.add.group({
+                    allowGravity:false,
+                });         //place le title screen
+                this.imageAcceuilVrai=this.imageAcceuil.create(640, 360, 'Title_Screen');
+
+                this.anims.create({
+                        key: 'LettreA20',           
+                        frames: this.anims.generateFrameNumbers('AnimTouche2', {start:0,end:1}),          //creation des animation
+                        frameRate: 5,
+                        repeat: -1,
+                    }); 
+
+                this.cursors = this.input.keyboard.createCursorKeys();
+                this.keys = this.input.keyboard.addKeys({
+                    e:  Phaser.Input.Keyboard.KeyCodes.E,               //importation de touche
+                });
+                this.LootBatTxT= this.add.bitmapText(880, 600, 'carrier_command',"   Press     to continue",12);
+                this.lettreSprite20 = this.add.sprite(1030,610, 'LettreA');  
+                this.lettreSprite20.anims.play("LettreA20",true)
+                this.LootBatTxT.alpha=0
+                this.lettreSprite20.alpha=0
+                this.startDisapear=false;
+            }
+
+            update() {
+
+                setTimeout(() => {
+                    if(this.startDisapear==false){
+                        this.LootBatTxT.alpha+=0.01
+                        this.lettreSprite20.alpha+=0.01
+                    }
+                        }, 2000);
+            if (this.keys.e.isDown) {
+                this.startDisapear=true;
+            }
+            if(this.startDisapear==true){
+                console.log("oui")
+                this.LootBatTxT.alpha-=0.01;
+                this.lettreSprite20.alpha-=0.01;
+                this.imageAcceuilVrai.alpha-=0.01;
+            }
+            if(this.imageAcceuilVrai.alpha==0){
+                this.scene.start("Start");               //changement de scene si space et down
+            }
+
+            }
+        }
+
         class Start extends Phaser.Scene {             //init de la premiere scene 
 
             constructor() {
@@ -38,7 +131,9 @@
                 this.load.image("SpikeImage", "assets/spike.png");
                 this.load.image("SpikeImage2", "assets/spike2.png");
                 this.load.image("StalagmiteImage", "assets/Stalagmite.png");
+                this.load.image("DeathImage", "assets/SlimeDeath.png");
                 this.load.image("EcranB", "assets/EcranB.png");
+                this.load.bitmapFont('carrier_command', 'assets/carrier_command.png', 'assets/carrier_command.xml');
         
                 this.load.tilemapTiledJSON("carte", "MapProto.json");  
 
@@ -69,6 +164,8 @@
             }
 
             create (){
+
+                this.CompteurMort=0
                 this.startgGame=true;
                 this.valdash = 0;
                 this.indash = false;
@@ -92,6 +189,7 @@
                 this.mouseY = 0;
                 this.Phase2Mort=false;   
                 this.illucrée=false; 
+                this.MortCompteurV=false;
                 this.tempsdashS = true;
                 this.inwalljumpG = false;
                 this.inwalljumpD = false;
@@ -307,8 +405,13 @@
                         tileset
                         ).setPipeline('Light2D'); 
 
-                this.EcranBrouillé = this.add.sprite(this.player.x,this.player.y, 'EcranB'); 
+                this.DeathTxt= this.add.bitmapText(380, 200, 'carrier_command',this.CompteurMort+"x",8);
+                this.ImageDeath = this.add.sprite(420, 200 , "DeathImage");
+                this.DeathTxt.setScrollFactor(0)
+                this.ImageDeath.setScrollFactor(0)
 
+                this.EcranBrouillé = this.add.sprite(this.player.x,this.player.y, 'EcranB'); 
+                
                 this.CheckPointsG=this.physics.add.group({
                         allowGravity: false,
                         immovable:true,
@@ -565,6 +668,11 @@
 
             Mort(){
                 this.inmort=true
+                if(this.MortCompteurV==false){
+                    this.MortCompteurV=true;
+                    this.CompteurMort+=1
+                    this.DeathTxt.setText(this.CompteurMort+"x");
+                }
                 if(this.Transform2==true){
                     this.InTransfo=true;
                     this.player.setVelocityX(0)
@@ -581,6 +689,7 @@
                             this.player.x=this.checkpointsX;   
                             this.player.y=this.checkpointsY; 
                             this.indeath2=false; 
+                            this.MortCompteurV=false;
                             this.Indeath=false;
                             this.DeathSpark=false;
                             this.inmort=false;
@@ -600,6 +709,7 @@
                         this.player.setVisible(true);
                         this.player.x=this.checkpointsX;   
                         this.player.y=this.checkpointsY; 
+                        this.MortCompteurV=false;
                         this.indeath2=false; 
                         this.Indeath=false;
                         this.DeathSpark=false;
@@ -615,7 +725,7 @@
                         this.AnimDebut=true;
                         this.inmort=false;
                         this.InTransfo=false;
-                }, 6100);
+                }, 5000);
                 }
                 if(this.createE2==false){
                     this.EcranBrouillé.anims.play("AnimEcranF",true)
@@ -760,10 +870,13 @@
                 }
 
                 if(this.illucrée==true && this.illudestroy==false){
+                    this.InTransfo=true;
                     this.IlluExistence.alpha += 0.1;
+
                 }
-                if(this.illudestroy==true){
+                if(this.illudestroy==true && this.IlluExistence.alpha>0){
                     this.IlluExistence.alpha -= 0.1;
+                    this.InTransfo=false;
                     if(this.IlluExistence.alpha<=0){
                         this.IlluExistence.destroy()
                     }
@@ -1042,6 +1155,7 @@
 
                 if ((this.player.x >= 9300 )){
                     this.scene.start("Start2",{
+                        DeathCounter: this.CompteurMort,
                     });
                 } 
 
@@ -1052,6 +1166,9 @@
         class Start2 extends Phaser.Scene {             //init de la premiere scene 
             constructor() {
                 super("Start2")
+            }
+            init(data){
+                this.CompteurMort=data.DeathCounter;
             }
         
 
@@ -1074,9 +1191,14 @@
                 this.load.image("SpikeImage", "assets/spike.png");
                 this.load.image("SpikeImage2", "assets/spike2.png");
                 this.load.image("SkeletonI", "assets/Skeleton.png");
+                this.load.image("IlluTuto", "assets/Transfo2Tuto.png");
+                this.load.image("IlluTuto2", "assets/Transfo3Tuto.png");
+                this.load.image("DeathImage", "assets/SlimeDeath.png");
+                this.load.image("illu3","assets/IlluSquelette.png");
                 this.load.image("StalagmiteImage", "assets/Stalagmite.png");
                 this.load.image("EcranB", "assets/EcranB.png");
                 this.load.image("StompBloc", "assets/StompBloc.png");
+                this.load.bitmapFont('carrier_command', 'assets/carrier_command.png', 'assets/carrier_command.xml');
         
                 this.load.tilemapTiledJSON("carte2", "MapProto2.json");  
 
@@ -1148,9 +1270,11 @@
                 this.fallVerif=false;
                 this.isfallin=false;
                 this.injump=false;
+                this.noe=false;
                 this.isDownM = false;
                 this.mouseX = 0;
                 this.mouseY = 0;
+                this.stopdestroyTuto=false;
                 this.Phase2Mort=false;   
                 this.tempsdashS = true;
                 this.inwalljumpG = false;
@@ -1162,14 +1286,16 @@
                 this.injump2=false;
                 this.inmort=false;
                 this.illudestroy2=false;
+                this.illudestroy3=false;
                 this.illucrée2=false;
+                this.illucrée3=false;
                 this.ParticuleSpeed=10;
                 this.compteurJumpReset=20;
                 this.InWallGlideD=false;
                 this.InWallGlideR=false;
                 this.createE=false;
                 this.createE4=false;
-                this.Transform2=true;
+                this.Transform2=false;
                 this.animwalkr="WalkR";
                 this.Noecran=false;
                 this.animwalkl="WalkL";
@@ -1177,7 +1303,8 @@
                 this.animjump="Jump";
                 this.animfall="fall";
                 this.animjumpR="Jump2L";
-                this.illudestroy2Stop=false ;
+                this.illudestroy2Stop=false;
+                this.illudestroy3Stop=false;
                 this.animjumpL="Jump2R";
                 this.animfallR="Fall2L";
                 this.animfallL="Fall2R";
@@ -1480,6 +1607,11 @@
 
                 this.physics.add.collider(this.StompBlocG,CollideStomp,this.MoveBlock,null,this)
                 this.physics.add.collider(this.player,this.StompBlocG,this.MortBlock,null,this)
+
+                this.DeathTxt= this.add.bitmapText(380, 200, 'carrier_command',this.CompteurMort+"x",8);
+                this.ImageDeath = this.add.sprite(420, 200 , "DeathImage");
+                this.DeathTxt.setScrollFactor(0)
+                this.ImageDeath.setScrollFactor(0)
 
                 carteDuNiveau.getObjectLayer('Stalagmite').objects.forEach((bloc) => {
                     this.StalagmiteB = this.StalagmiteG.create(bloc.x , bloc.y-32 , "StalagmiteImage").setOrigin(0);               //importation via calque objet feu de camp
@@ -1892,10 +2024,10 @@
             deplacementBlock(player,bloc){
                 this.infunctionBloc=true;
                 if (bloc.body.velocity.x > 0){
-                    this.player.setVelocityX(this.speedPlateforme+10)
+                    this.player.setVelocityX(this.speedPlateforme)
                 }
                 if (bloc.body.velocity.x < 0){
-                    this.player.setVelocityX(-this.speedPlateforme+10)
+                    this.player.setVelocityX(-this.speedPlateforme)
                 }
             }
 
@@ -1949,6 +2081,11 @@
                 }
 
                 if(this.MortVerif==true){
+                    if(this.MortCompteurV==false){
+                    this.MortCompteurV=true;
+                    this.CompteurMort+=1
+                    this.DeathTxt.setText(this.CompteurMort+"x");
+                    }
                     this.inmort=true
                     if(this.Transform2==true || this.Transform3==true){
                         this.InTransfo=true;
@@ -1975,6 +2112,7 @@
                                 this.DeathSpark=false;
                                 this.inmort=false;
                                 this.MortVerif=false;
+                                this.MortCompteurV=false;
                             }, 500);
                             }
                         }
@@ -1998,6 +2136,7 @@
                             this.DeathSpark=false;
                             this.inmort=false;
                             this.MortVerif=false;
+                            this.MortCompteurV=false;
                             }, 500);
                         }
                     }
@@ -2097,7 +2236,7 @@
                 }
 
                 if(this.Indeath==true && this.DeathSpark==false){
-                    this. DeathSpark=true
+                    this.DeathSpark=true
                     this.spark3.setPosition(this.player.x, this.player.y);
                     this.cameras.main.shake(90, 0.001);
                     this.spark4.setPosition(this.player.x, this.player.y);
@@ -2117,46 +2256,107 @@
                     this.createE=false       
                 }
 
-                if(((this.player.x >= this.OsB.x-50 && this.player.x <= this.OsB.x+50) && (this.player.y >=this.OsB.y-50 && this.player.y <= this.OsB.y+50) && this.createE4==false)){
+                if(((this.player.x >= this.OsB.x-70 && this.player.x <= this.OsB.x+70) && (this.player.y >=this.OsB.y-70 && this.player.y <= this.OsB.y+70) && this.createE4==false)){
                     this.lettreSprite4 = this.add.sprite(this.player.x,this.player.y, 'LettreA');  
                     this.lettreSprite4.anims.play("LettreA",true)
                     this.createE4=true
                 }
-
-                if(((this.player.x <= this.OsB.x-50 || this.player.x >= this.OsB.x+50) && this.createE4==true)){
+                console.log(this.InTransfo)
+                if(((this.player.x <= this.OsB.x-70 || this.player.x >= this.OsB.x+70) && this.createE4==true)){
                     this.lettreSprite4.destroy()
                     this.createE4=false       
+                }
+
+
+                if(this.illucrée3==true && Phaser.Input.Keyboard.JustDown(this.keys.e ) && this.Transform3==false && this.noe==false){
+                    this.player.setVelocityX(0)
+                    console.log("oui")
+                    this.illudestroy3=true
+                    this.noe=true;
+                    this.player.anims.play("AnimationTransform2",true)
+                    this.InTransfo=true;
+                    this.player.y-=20
+                    this.player.body.setSize(32,64,true)
+                    setTimeout(() => {
+                            this.player.direction="gauche"
+                            this.Transform3=true; 
+                            this.noe=false;
+                            this.illtuto2 = this.add.sprite(this.player.x,this.player.y, 'IlluTuto2');  
+                            this.illtuto2.setScale(0.5)  
+                        }, 2370);
                 }
 
                 if(this.createE4==true){
                     this.lettreSprite4.x=this.player.x
                     this.lettreSprite4.y=this.player.y-32;
-                    if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform3==false && this.player.body.blocked.down ){
-                        this.player.anims.play("AnimationTransform2",true)
+                    if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform3==false && this.player.body.blocked.down && this.illucrée3==false){
+                        this.IlluOs = this.add.sprite(this.player.x,this.player.y, 'illu3');
+                        this.player.setVelocityX(0)
+                        this.IlluOs.alpha=0
+                        this.IlluOs.setScale(0.6)
+                        this.illucrée3=true;
+
+                    }
+                }
+
+                if(this.illucrée3==true && this.illudestroy3==false && this.illudestroy3Stop==false){
+                    this.IlluOs.alpha += 0.1;
+                    this.InTransfo=true;
+                }
+
+                if(this.illudestroy3==true && this.IlluOs.alpha>0){
+                    console.log("oui1")
+                    this.IlluOs.alpha -= 0.1;
+                    if(this.IlluOs.alpha<=0){
+                        this.IlluOs.destroy()
+                        this.illudestroy3Stop=true;
+                    }
+                }
+
+                    /*if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform3==false){
                         this.InTransfo=true;
+                        this.Transform2=false; 
+                        this.player.anims.play("AnimationTransform2",true)
                         this.player.setVelocityX(0)
                         this.player.y-=20
                         this.player.body.setSize(32,64,true)
                         setTimeout(() => {
                                 this.player.direction="gauche"
                                 this.Transform3=true; 
-                                this.InTransfo=false; 
-                                this.Transform2=false;  
+                                this.illtuto2 = this.add.sprite(this.player.x,this.player.y, 'IlluTuto2');  
+                                this.illtuto2.setScale(0.5)  
                             }, 2370);
-                        }
+                        }*/
+
+                if(this.Transform3==true){
+                    setTimeout(() => { 
+                            this.illtuto2.destroy()
+                            this.InTransfo=false;
+                        }, 4000);
                 }
 
-                if(this.illucrée2==true && Phaser.Input.Keyboard.JustDown(this.keys.e ) && this.Transform2==false ){
-                    this.illudestroy2=true
+                if(this.illucrée2==true && Phaser.Input.Keyboard.JustDown(this.keys.e ) && this.Transform2==false && this.noe==false){
+                    this.noe=true;
+                    this.illudestroy2=true;
                     this.player.anims.play("AnimationTransform",true)
-                    this.InTransfo=true;
+                    this.InTransfo=true; 
                     this.player.setVelocityX(0)
                     setTimeout(() => {
                             this.player.direction="gauche";
-                            this.Transform2=true; 
-                            this.InTransfo=false;
-                            this.player.body.setSize(20,0,true)        
+                            this.Transform2=true;
+                            this.player.body.setSize(20,0,true)   
+                            this.illtuto = this.add.sprite(this.player.x,this.player.y, 'IlluTuto');   
+                            this.illtuto.setScale(0.5) 
+                            this.noe=false;
                         }, 2370);
+                }
+
+                if(this.Transform2==true && this.stopdestroyTuto==false ){
+                    setTimeout(() => { 
+                            this.InTransfo=false;
+                            this.illtuto.destroy()
+                            this.stopdestroyTuto=true;
+                        }, 3000);
                 }
 
 
@@ -2166,6 +2366,7 @@
                     if(Phaser.Input.Keyboard.JustDown(this.keys.e) && this.Transform2==false && this.player.body.blocked.down && this.illucrée2==false){
                         this.IlluPhoto = this.add.sprite(this.player.x,this.player.y, 'illu2');
                         this.IlluPhoto.alpha=0
+                        this.player.setVelocityX(0)
                         this.IlluPhoto.setScale(0.15)
                         this.illucrée2=true
 
@@ -2174,9 +2375,10 @@
 
                 if(this.illucrée2==true && this.illudestroy2==false && this.illudestroy2Stop==false){
                     this.IlluPhoto.alpha += 0.1;
+                    this.InTransfo=true;
                 }
 
-                if(this.illudestroy2==true){
+                if(this.illudestroy2==true && this.IlluPhoto.alpha>0){
                     this.IlluPhoto.alpha -= 0.1;
                     if(this.IlluPhoto.alpha<=0){
                         this.IlluPhoto.destroy()
@@ -2513,7 +2715,7 @@
             forceSetTimeOut: true
             },
             pixelArt: true,
-            scene: [Start2,Start]
+            scene: [EcranStart,EcranTitre,Start,Start2]
             };
         new Phaser.Game(config);
 
