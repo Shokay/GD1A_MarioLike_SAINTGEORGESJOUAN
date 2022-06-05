@@ -1780,6 +1780,16 @@
     <property name="estSolide" type="bool" value="true"/>
    </properties>
   </tile>
+  <tile id="2997">
+   <properties>
+    <property name="estSolide" type="bool" value="true"/>
+   </properties>
+  </tile>
+  <tile id="2998">
+   <properties>
+    <property name="estSolide" type="bool" value="true"/>
+   </properties>
+  </tile>
   <tile id="2999">
    <properties>
     <property name="estSolide" type="bool" value="true"/>

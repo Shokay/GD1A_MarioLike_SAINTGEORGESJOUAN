@@ -1287,6 +1287,7 @@
                 this.mouseX = 0;
                 this.mouseY = 0;
                 this.stopdestroyTuto=false;
+                this.stopdestroyTuto2=false;
                 this.Phase2Mort=false;   
                 this.tempsdashS = true;
                 this.inwalljumpG = false;
@@ -2291,6 +2292,7 @@
                     setTimeout(() => {
                             this.player.direction="gauche"
                             this.Transform3=true; 
+                            this.Transform2=false;
                             this.noe=false;
                             this.illtuto2 = this.add.sprite(this.player.x,this.player.y, 'IlluTuto2');  
                             this.illtuto2.setScale(0.5)  
@@ -2339,10 +2341,11 @@
                             }, 2370);
                         }*/
 
-                if(this.Transform3==true){
+                if(this.Transform3==true && this.stopdestroyTuto2==false){
                     setTimeout(() => { 
                             this.illtuto2.destroy()
                             this.InTransfo=false;
+                            this.stopdestroyTuto2=true;
                         }, 4000);
                 }
 
@@ -2726,7 +2729,7 @@
             forceSetTimeOut: true
             },
             pixelArt: true,
-            scene: [EcranStart,EcranTitre,Start,Start2]
+            scene: [Start2,EcranStart,EcranTitre,Start]
             };
         new Phaser.Game(config);
 
