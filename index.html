@@ -388,6 +388,8 @@
                 this.player.alpha = 1; 
                 this.player.setMaxVelocity(10000,900)
                 this.light = this.lights.addLight(400, 300, 60).setIntensity(1);
+                this.TutoTxT= this.add.bitmapText(this.player.x, this.player.y-32, 'carrier_command',"Deplacez vous avez Q,D et sauter avec ESPACE",6);
+                this.TutoTxT.setDepth(10)
                 this.light2 = this.lights.addLight(8851, 2224, 1000).setIntensity(2);
 
 
@@ -720,6 +722,16 @@
             }
 
             update(){
+
+
+                setTimeout(() => {
+                    this.TutoTxT.alpha-=0.05;
+                }, 5000);
+
+                if(this.TutoTxT.alpha==0){
+                    this.TutoTxT.destroy()
+                }   
+
                 if(this.AnimDebut==false){
                     setTimeout(() => {
                         this.AnimDebut=true;
@@ -1421,12 +1433,6 @@
                         tileset
                         ); 
 
-                const Decorsp = carteDuNiveau.createLayer(
-                        "DecorsP",
-                        tileset
-                        ); 
-
-
                 const plateformesG = carteDuNiveau.createLayer(
                         "plateformeGrotte",
                         tileset
@@ -1444,6 +1450,11 @@
 
                 const CollideStomp = carteDuNiveau.createLayer(
                         "StompCollide",
+                        tileset
+                        ); 
+
+                const Decorsp = carteDuNiveau.createLayer(
+                        "DecorsP",
                         tileset
                         ); 
 
