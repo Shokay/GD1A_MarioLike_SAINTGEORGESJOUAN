@@ -1272,6 +1272,14 @@
                 this.load.spritesheet('InDashG','assets/DashD.png',
                     { frameWidth: 64, frameHeight: 32 });
 
+                this.load.spritesheet('Herbe1','assets/Grass1SpriteSheet.png',
+                    { frameWidth: 32, frameHeight: 32 });
+
+                this.load.spritesheet('Herbe2','assets/Grass2SpriteSheet.png',
+                    { frameWidth: 32, frameHeight: 32 });
+
+                this.load.spritesheet('NenupharSpriteSheet','assets/NenupharAnim.png',
+                    { frameWidth: 62, frameHeight: 14 });
             }
 
             create (){
@@ -1675,9 +1683,6 @@
                         tileset
                         ); 
 
-                carteDuNiveau.getObjectLayer('PlateformeFragile').objects.forEach((bloc) => {
-                    this.NenupharB = this.NenupharG.create(bloc.x , bloc.y+3 , "Nenuphar").setOrigin(0);               //importation via calque objet feu de camp
-                });
 
                 this.CheckPointsG=this.physics.add.group({
                         allowGravity: false,
@@ -1713,7 +1718,7 @@
 
                 this.physics.add.collider(this.player, plateformes);
                 this.physics.add.collider(this.player, plateformesG);
-                this.physics.add.collider(this.player, this.NenupharG);
+                this.physics.add.collider(this.player, this.NenupharG, this.AnimNenu, null,this);
                 this.player.setCollideWorldBounds(true);
                 this.physics.add.collider(this.player,this.BlocMoveG2);
                 this.physics.add.collider(this.player,this.blocG);
@@ -1760,7 +1765,28 @@
                 carteDuNiveau.getObjectLayer('WaterBloc').objects.forEach((bloc) => {
                     this.BlocEau = this.EauG.create(bloc.x , bloc.y-32 , "blocVide").setOrigin(0);               //importation via calque objet feu de camp
                 });
+                
+                carteDuNiveau.getObjectLayer('PlateformeFragile').objects.forEach((bloc) => {
+                    this.NenupharB = this.NenupharG.create(bloc.x , bloc.y+3 , "Nenuphar").setOrigin(0);               //importation via calque objet feu de camp
+                });
 
+                this.Herbe1G = this.physics.add.group({
+                    allowGravity:false,
+                    immovable:true,
+                });
+
+                carteDuNiveau.getObjectLayer('HerbeAnim1').objects.forEach((bloc) => {
+                    this.Herbe1B = this.Herbe1G.create(bloc.x , bloc.y-32 , "blocVide").setOrigin(0);               //importation via calque objet feu de camp
+                });
+
+                this.Herbe2G = this.physics.add.group({
+                    allowGravity:false,
+                    immovable:true,
+                });
+
+                carteDuNiveau.getObjectLayer('HerbeAnim2').objects.forEach((bloc) => {
+                    this.Herbe2B = this.Herbe2G.create(bloc.x , bloc.y-32 , "blocVide").setOrigin(0);               //importation via calque objet feu de camp
+                });
                 this.anims.create({
                         key: 'AnimEauVrai',           
                         frames: this.anims.generateFrameNumbers('AnimEau', {start:0,end:1}),          //creation des animation
@@ -1768,11 +1794,19 @@
                         repeat: -1,
                     });  
 
+                this.anims.create({
+                        key: 'Herbe1A',           
+                        frames: this.anims.generateFrameNumbers('Herbe1', {start:0,end:7}),          //creation des animation
+                        frameRate: 10,
+                        repeat: -1,
+                    }); 
+
 
                 this.anims.create({
-                        key: 'EndAnimation',           
-                        frames: this.anims.generateFrameNumbers('EndAnim', {start:0,end:13}),          //creation des animation
-                        frameRate: 5,
+                        key: 'Herbe2A',           
+                        frames: this.anims.generateFrameNumbers('Herbe2', {start:0,end:7}),          //creation des animation
+                        frameRate: 10,
+                        repeat: -1,
                     });  
 
                 this.anims.create({
@@ -2080,6 +2114,13 @@
                         frames: this.anims.generateFrameNumbers('TheEndP', {start:0,end:4}),          //creation des animation
                         frameRate: 10,
                     });
+
+                this.anims.create({
+                        key: 'NenupharAnim',           
+                        frames: this.anims.generateFrameNumbers('NenupharSpriteSheet', {start:0,end:2}),          //creation des animation
+                        frameRate: 10,
+                    });
+
                 // touches clavier
                 this.cursors = this.input.keyboard.createCursorKeys();
                 this.keys = this.input.keyboard.addKeys({
@@ -2122,6 +2163,11 @@
                 }
             }
 
+            AnimNenu(player,Nenu){
+                Nenu.anims.play("NenupharAnim",true)
+                Nenu.body.setSize(58,10,true)
+            }
+
             MoveF(player,bloc){
                 this.infunctionBloc=true;
                 if(this.BlocDirection=="droite"){
@@ -2145,6 +2191,14 @@
 
                 this.EauG.children.each(function(EauA) {
                     EauA.anims.play("AnimEauVrai",true)
+                }, this);
+
+                this.Herbe1G.children.each(function(HerbeA) {
+                    HerbeA.anims.play("Herbe1A",true)
+                }, this);
+
+                this.Herbe2G.children.each(function(HerbeA) {
+                    HerbeA.anims.play("Herbe2A",true)
                 }, this);
 
                 
@@ -2277,6 +2331,7 @@
                         setTimeout(() => {
                             NenupharA.setVisible(false)    
                             NenupharA.disableBody()  
+
                         }, 500);
                         }
                 }, this);
@@ -2570,7 +2625,7 @@
                 if (this.keys.f.isDown && this.fallVerif==false  && this.Transform3==true  && this.inmort==false){
                     this.player.anims.play("ChargeDashA",true)
                     this.player.setVelocityX(0)
-                    this.player.setVelocityY(-25);
+                    this.player.setVelocityY(-25.1);
                     this.FpressVerif = true;
                     this.valdash+=1
                 }
@@ -2720,12 +2775,12 @@
                     if (this.player.direction=="gauche"){
                         this.player.anims.play("InDashGA",true)
                         this.player.setVelocityX(-(this.valdash*10))
-                        this.player.setVelocityY(-25);
+                        this.player.setVelocityY(-25.1);
                     }
                     if (this.player.direction=="droite"){
                         this.player.anims.play("InDashDA",true)
                         this.player.setVelocityX(this.valdash*10);
-                        this.player.setVelocityY(-25);
+                        this.player.setVelocityY(-25.1);
                     }
                     if (this.compteur==0 ){
                         this.FpressVerif=false;
