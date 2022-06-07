@@ -137,6 +137,12 @@
         
                 this.load.tilemapTiledJSON("carte", "MapProto.json");  
 
+                this.load.audio("AmbianceForet", "assets/ForestSound.wav");
+                this.load.audio("Music", "assets/Music.mp3");
+                this.load.audio("CoeurSound", "assets/Coeur.wav");
+                this.load.audio("StepSound", "assets/pas.mp3");
+
+
                 this.load.spritesheet('AnimTestP','assets/SpriteSheetPersoTest.png',
                     { frameWidth: 32, frameHeight: 32 });
 
@@ -177,6 +183,7 @@
                 this.dashstart= false;
                 this.dash2 = true;
                 this.dashvalmax=false;
+                this.startMusic=false;
                 this.compteurMax = 20;
                 this.colorAppliqué=false;
                 this.startFall = false;
@@ -657,6 +664,13 @@
                     espace:  Phaser.Input.Keyboard.KeyCodes.SPACE
                 });
                 this.fdown = this.keys.f.isUp;
+                this.ForestSound = this.sound.add('AmbianceForet', {volume: 0.2});
+                this.Coeur = this.sound.add('CoeurSound', {volume: 0.4});
+                this.Musique = this.sound.add('Music', {volume: 0.1});
+                this.ForestSound.play()
+                this.ForestSound.loop=true;
+                this.Coeur.loop=true;
+                this.Coeur.play()
             }
 
             ChekPointsF(){
@@ -722,7 +736,6 @@
             }
 
             update(){
-
 
                 setTimeout(() => {
                     this.TutoTxT.alpha-=0.05;
@@ -883,6 +896,7 @@
 
                 if(this.illucrée==true && this.illudestroy==false){
                     this.InTransfo=true;
+                    this.player.setVelocityX(0)
                     this.IlluExistence.alpha += 0.1;
 
                 }
@@ -899,7 +913,11 @@
                     this.EcranBrouillé.setVisible(false)
                     this.lettreSprite2.destroy()
                     this.Noecran=true
-
+                    if(this.startMusic==false){
+                        this.startMusic=true;
+                        this.Musique.play()
+                    }
+                    this.Coeur.stop()
                 }
 
 
@@ -1136,6 +1154,8 @@
                 }
 
                 if (this.keys.q.isDown && this.InTransfo==false){ 
+                    if(this.isfallin==false){
+                    }
                     if (this.FpressVerif==false && this.inwalljumpG==false){
                         this.player.setVelocityX(-200); 
                     }
@@ -1147,6 +1167,8 @@
                 }
 
                 else if (this.keys.d.isDown && this.InTransfo==false){ 
+                    if(this.isfallin==false){
+                    }
                     if (this.FpressVerif==false && this.inwalljumpD==false ){
                         this.player.setVelocityX(200); 
                     }
@@ -1166,6 +1188,7 @@
                 }
 
                 if ((this.player.x >= 9300 )){
+                    this.AmbianceForet.stop()
                     this.scene.start("Start2",{
                         DeathCounter: this.CompteurMort,
                     });
@@ -1212,6 +1235,11 @@
                 this.load.image("EcranB", "assets/EcranB.png");
                 this.load.image("StompBloc", "assets/StompBloc.png");
                 this.load.bitmapFont('carrier_command', 'assets/carrier_command.png', 'assets/carrier_command.xml');
+
+                this.load.audio("AmbianceForet", "assets/ForestSound.wav");
+                this.load.audio("AmbianceCave", "assets/Cave.mp3");
+                this.load.audio("AmbianceCave2", "assets/Cave2.wav");
+                this.load.audio("Music2", "assets/Music2.mp3");
         
                 this.load.tilemapTiledJSON("carte2", "MapProto2.json");  
 
@@ -1280,6 +1308,9 @@
 
                 this.load.spritesheet('NenupharSpriteSheet','assets/NenupharAnim.png',
                     { frameWidth: 62, frameHeight: 14 });
+
+                this.load.spritesheet('NenupharSpriteSheet1','assets/NenupharAnim1.png',
+                    { frameWidth: 60, frameHeight: 12 });
             }
 
             create (){
@@ -1768,6 +1799,7 @@
                 
                 carteDuNiveau.getObjectLayer('PlateformeFragile').objects.forEach((bloc) => {
                     this.NenupharB = this.NenupharG.create(bloc.x , bloc.y+3 , "Nenuphar").setOrigin(0);               //importation via calque objet feu de camp
+                    this.NenupharB.PlayerOn=false;
                 });
 
                 this.Herbe1G = this.physics.add.group({
@@ -2116,9 +2148,22 @@
                     });
 
                 this.anims.create({
+                        key: 'EndAnimation',           
+                        frames: this.anims.generateFrameNumbers('EndAnim', {start:0,end:13}),          //creation des animation
+                        frameRate: 8,
+                    });
+                    
+
+                this.anims.create({
                         key: 'NenupharAnim',           
                         frames: this.anims.generateFrameNumbers('NenupharSpriteSheet', {start:0,end:2}),          //creation des animation
                         frameRate: 10,
+                    });
+
+                this.anims.create({
+                        key: 'NenupharAnim1',           
+                        frames: this.anims.generateFrameNumbers('NenupharSpriteSheet1', {start:0,end:2}),          //creation des animation
+                        frameRate: 5,
                     });
 
                 // touches clavier
@@ -2134,6 +2179,16 @@
                     espace:  Phaser.Input.Keyboard.KeyCodes.SPACE
                 });
                 this.fdown = this.keys.f.isUp;
+                this.ForestSound = this.sound.add('AmbianceForet', {volume: 0.2});
+                this.Musique = this.sound.add('Music2', {volume: 0.2});
+                this.ForestSound.loop=true;
+                this.CaveSound =  this.sound.add('AmbianceCave', {volume: 0.2});
+                this.CaveSound2 =  this.sound.add('AmbianceCave2', {volume: 0.2});
+                this.ForestSound.play()
+                this.Musique.loop=true;
+                this.Musique.play()
+                this.CaveSound.loop=true;
+                this.CaveSound2.loop=true;
             }
 
             deplacementBlock(player,bloc){
@@ -2164,8 +2219,7 @@
             }
 
             AnimNenu(player,Nenu){
-                Nenu.anims.play("NenupharAnim",true)
-                Nenu.body.setSize(58,10,true)
+                Nenu.PlayerOn=true;
             }
 
             MoveF(player,bloc){
@@ -2188,6 +2242,16 @@
             }
 
             update(){
+
+                this.NenupharG.children.each(function(nenuAutre) {
+                    if(nenuAutre.PlayerOn==true){
+                        nenuAutre.anims.play("NenupharAnim",true)
+                        nenuAutre.body.setSize(58,10,true)
+                    }else{
+                        nenuAutre.anims.play("NenupharAnim1",true)
+                        nenuAutre.body.setSize(58,10,true)
+                    }
+                }, this);
 
                 this.EauG.children.each(function(EauA) {
                     EauA.anims.play("AnimEauVrai",true)
@@ -2219,6 +2283,7 @@
                     }
                     if(this.playanimV2==false && this.endscreenstart==true){
                             this.EcranBrouillé3.anims.play("AnimEcranF3",true)
+                            this.EcranBrouillé3.setDepth(11)
                             if(this.EcranBrouillé3.anims.currentFrame.index==11){
                                 this.playanimV2=true;
                             }
@@ -2317,12 +2382,15 @@
                 if((this.player.x >= 2161 && this.player.x <= 2262) && (this.player.y >= 18 && this.player.y <= 98 )){
                     this.player.x=5430
                     this.player.y=6251
+                    this.ForestSound.play()
+                    this.CaveSound.stop()
                 }
 
                 if(this.inmort==true){
                     this.NenupharG.children.each(function(NenupharA) {
                                         NenupharA.setVisible(true)    
                                         NenupharA.enableBody()  
+                                        NenupharA.PlayerOn=false;
                             }, this);
                 }
 
@@ -2565,6 +2633,8 @@
                        this.InTransfo=true
                        this.player.setVelocityX(0)
                         setTimeout(() => {
+                            this.ForestSound.stop()
+                            this.CaveSound.play()
                             this.player.x=2211
                             this.player.y=175
                             this.InTransfo=false
@@ -2625,7 +2695,7 @@
                 if (this.keys.f.isDown && this.fallVerif==false  && this.Transform3==true  && this.inmort==false){
                     this.player.anims.play("ChargeDashA",true)
                     this.player.setVelocityX(0)
-                    this.player.setVelocityY(-25.1);
+                    this.player.setVelocityY(-25.2);
                     this.FpressVerif = true;
                     this.valdash+=1
                 }
@@ -2775,12 +2845,12 @@
                     if (this.player.direction=="gauche"){
                         this.player.anims.play("InDashGA",true)
                         this.player.setVelocityX(-(this.valdash*10))
-                        this.player.setVelocityY(-25.1);
+                        this.player.setVelocityY(-25.2);
                     }
                     if (this.player.direction=="droite"){
                         this.player.anims.play("InDashDA",true)
                         this.player.setVelocityX(this.valdash*10);
-                        this.player.setVelocityY(-25.1);
+                        this.player.setVelocityY(-25.2);
                     }
                     if (this.compteur==0 ){
                         this.FpressVerif=false;
