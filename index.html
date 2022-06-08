@@ -2695,7 +2695,7 @@
                 if (this.keys.f.isDown && this.fallVerif==false  && this.Transform3==true  && this.inmort==false){
                     this.player.anims.play("ChargeDashA",true)
                     this.player.setVelocityX(0)
-                    this.player.setVelocityY(-25.2);
+                    this.player.setVelocityY(-25.3);
                     this.FpressVerif = true;
                     this.valdash+=1
                 }
@@ -2845,12 +2845,12 @@
                     if (this.player.direction=="gauche"){
                         this.player.anims.play("InDashGA",true)
                         this.player.setVelocityX(-(this.valdash*10))
-                        this.player.setVelocityY(-25.2);
+                        this.player.setVelocityY(-25.3);
                     }
                     if (this.player.direction=="droite"){
                         this.player.anims.play("InDashDA",true)
                         this.player.setVelocityX(this.valdash*10);
-                        this.player.setVelocityY(-25.2);
+                        this.player.setVelocityY(-25.3);
                     }
                     if (this.compteur==0 ){
                         this.FpressVerif=false;
@@ -2945,7 +2945,7 @@
             forceSetTimeOut: true
             },
             pixelArt: true,
-            scene: [Start2,EcranStart,EcranTitre,Start]
+            scene: [EcranStart,EcranTitre,Start,Start2]
             };
         new Phaser.Game(config);
 
